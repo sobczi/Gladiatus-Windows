@@ -13,3 +13,5 @@ _ReSharper.*
 Ankh.NoLoad
 *.pdb
 *.exe
+*.pdb
+*.exe
