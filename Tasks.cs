@@ -1099,6 +1099,13 @@ namespace Gladiatus_35
 
                 #region GetItemsFromPackages
                 int clickedTimes = 0;
+                if(_BasicTasks.Search("//a[@class='paging_button paging_right_full']"))
+                { _BasicTasks.Click("//a[@class='paging_button paging_right_full']"); }
+                for(int i=0; i<3;i++)
+                {
+                    if(_BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
+                    { _BasicTasks.Click("//a[@class='paging_button paging_left_step']");}
+                }
                 list = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
                 for (int i = 0; i < 3; i++)
                 {
