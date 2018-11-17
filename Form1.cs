@@ -242,7 +242,7 @@ namespace Gladiatus_35
                                 _Tasks.Arena35();
                                 _Tasks.Turma35();
                                 _Tasks.Training();
-                                _Tasks.PackGold();
+                                _Tasks.Pack_Gold();
                                 _Tasks.Search_Pack();
 
                                 expedition_points = _Tasks.ReturnInt("//span[@id='expeditionpoints_value_point']");
@@ -259,7 +259,7 @@ namespace Gladiatus_35
 
                             _Tasks.ExtractItems();
                             _Tasks.SellItems(false);
-                            _Tasks.PackGold();
+                            _Tasks.Pack_Gold();
                             _Tasks.BuyFood();
                             _Tasks.Buy_Auction_House();
                             _Tasks.MovingFood();
@@ -269,7 +269,7 @@ namespace Gladiatus_35
                         while (moveGoldAction)
                         {
                             Check_Updates();
-                            _Tasks.PackGold();
+                            _Tasks.Pack_Gold();
                             moveGoldAction = false;
                             TurnOff();
                         }
