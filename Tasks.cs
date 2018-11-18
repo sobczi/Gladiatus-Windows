@@ -1981,6 +1981,13 @@ namespace Gladiatus_35
         }
         void Third_Tab_Sellers()
         {
+            int iterator = 0;
+            while(!_BasicTasks.Search("//div[@class='shopTab dynamic']"))
+            {
+                Thread.Sleep(1000);
+                if(iterator == 5) { return; }
+                iterator++;
+            }
             _BasicTasks.Click("//div[@class='shopTab dynamic']");
         }
         void Guild_Market()
