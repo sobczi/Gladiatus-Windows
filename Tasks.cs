@@ -329,7 +329,7 @@ namespace Gladiatus_35
         }
         public void Pack_Gold()
         {
-            if(!File.Exists(Environment.CurrentDirectory + @"\items.txt")) { return; }
+            if (!File.Exists(Environment.CurrentDirectory + @"\items.txt")) { return; }
             while (Properties.Settings.Default.pakujChecked &&
                 Gold_Level() >= Convert.ToInt32(Properties.Settings.Default.minimum_gold_pack))
             {
@@ -497,7 +497,6 @@ namespace Gladiatus_35
             if (!Properties.Settings.Default.pakujChecked || !File.Exists(Environment.CurrentDirectory + @"\items.txt")) { return; }
 
             bool found = false;
-            string found_soulbound = "";
             IReadOnlyCollection<IWebElement> items;
 
             int lineCount = File.ReadLines(Environment.CurrentDirectory + @"\items.txt").Count();
@@ -531,8 +530,8 @@ namespace Gladiatus_35
             bool types_good = true;
             bool quality_good = true;
             if (types.Contains("*")) { types_good = false; }
-            if(qualities.Contains("*")) { quality_good = false; }
-            if(types_good || quality_good)
+            if (qualities.Contains("*")) { quality_good = false; }
+            if (types_good || quality_good)
             {
                 for (int i = 0; i < class_items.Length; i++)
                 {
@@ -554,8 +553,8 @@ namespace Gladiatus_35
                 Packages();
                 if (_BasicTasks.Search("//section[@style='display: none;']"))
                 { _BasicTasks.Click("//h2[@class='section-header'][contains(text(), 'Opcje')]"); }
-                if(types_good) { _BasicTasks.SelectElement("//select[@name='f']", Type_Pack(type)); }
-                if(quality_good) { _BasicTasks.SelectElement("//select[@name='fq']", Quality_Pack(quality)); }
+                if (types_good) { _BasicTasks.SelectElement("//select[@name='f']", Type_Pack(type)); }
+                if (quality_good) { _BasicTasks.SelectElement("//select[@name='fq']", Quality_Pack(quality)); }
                 if (types_good || quality_good) { _BasicTasks.Click("//input[@value='Filtr']"); }
                 items = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
 
@@ -566,18 +565,18 @@ namespace Gladiatus_35
                         string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
                         string name_class = items.ElementAt(i).GetAttribute("class");
                         string level = items.ElementAt(i).GetAttribute("data-level");
-                        for(int j=0; j<class_items.Length; j++)
+                        for (int j = 0; j < class_items.Length; j++)
                         {
                             first = false;
                             second = false;
                             third = false;
-                            if(class_items[j] != "*") { names = true; } else { first = true; }
-                            if(level_items[j] != "*") { levels = true; } else { second = true; }
-                            if(soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
-                            if (names && class_items[j] == name_class) { first = true; }
-                            if(levels && level_items[j] == level) { second = true; }
-                            if(soulbounds && soulbound_items[j] == soul_bound) { third = true; }
-                            if(first && second && third) { found = true; found_case = j; break; }
+                            if (class_items[j] != "*") { names = true; } else { first = true; }
+                            if (level_items[j] != "*") { levels = true; } else { second = true; }
+                            if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
+                            if (names && name_class.Contains(class_items[j])) { first = true; }
+                            if (levels && level_items[j] == level) { second = true; }
+                            if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
+                            if (first && second && third) { found = true; found_case = j; break; }
                         }
                         if (found) { break; }
                     }
@@ -592,8 +591,8 @@ namespace Gladiatus_35
                 string path2 = "//div[@id='inv']//div";
                 if (names)
                 {
-                    path1 += "[contains(@class='"+class_items[found_case]+"')]";
-                    path2 += "[contains(@class='" + class_items[found_case] + "')]";
+                    path1 += "[contains(@class,'" + class_items[found_case] + "')]";
+                    path2 += "[contains(@class,'" + class_items[found_case] + "')]";
                 }
                 if (levels)
                 {
@@ -1138,12 +1137,12 @@ namespace Gladiatus_35
 
                 #region GetItemsFromPackages
                 int clickedTimes = 0;
-                if(_BasicTasks.Search("//a[@class='paging_button paging_right_full']"))
+                if (_BasicTasks.Search("//a[@class='paging_button paging_right_full']"))
                 { _BasicTasks.Click("//a[@class='paging_button paging_right_full']"); }
-                for(int i=0; i<3;i++)
+                for (int i = 0; i < 3; i++)
                 {
-                    if(_BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
-                    { _BasicTasks.Click("//a[@class='paging_button paging_left_step']");}
+                    if (_BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
+                    { _BasicTasks.Click("//a[@class='paging_button paging_left_step']"); }
                 }
                 list = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
                 for (int i = 0; i < 3; i++)
@@ -1392,7 +1391,7 @@ namespace Gladiatus_35
                 _BasicTasks.Click("//div[@class='attack']");
                 if (_BasicTasks.Search("//div[@id='header_bod']"))
                 {
-                    if(driver.FindElementByXPath("//div[@id='header_bod']").Displayed && 
+                    if (driver.FindElementByXPath("//div[@id='header_bod']").Displayed &&
                         driver.FindElementByXPath("//div[@id='header_bod']").Enabled)
                     { _BasicTasks.Click("//input[@value='Jazda!']"); }
                 }
@@ -1419,10 +1418,10 @@ namespace Gladiatus_35
                         driver.FindElementByXPath("//div[@id='header_bod']").Enabled)
                     { _BasicTasks.Click("//input[@value='Jazda!']"); }
                 }
-                for(int i=0; i<5; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     if (_BasicTasks.Search("//div[@id='errorText']")) { return; }
-                    if(!_BasicTasks.Search("//body[@id='reportsPage']")) { Thread.Sleep(1000); }
+                    if (!_BasicTasks.Search("//body[@id='reportsPage']")) { Thread.Sleep(1000); }
                     else { return; }
                     Thread.Sleep(500);
                 }
@@ -1473,15 +1472,15 @@ namespace Gladiatus_35
             else
             {
                 int needed_gold = Convert.ToInt32(Properties.Settings.Default.gold_level);
-                while(Gold_Level() < needed_gold)
+                while (Gold_Level() < needed_gold)
                 {
                     int gold_before = Gold_Level();
                     IWebElement element = driver.FindElementByXPath("//div[@class='packageItem']//div[contains(@class,'ui-draggable')]");
                     string current_element_string = element.GetAttribute("data-price-gold");
                     int current_element = Convert.ToInt32(current_element_string);
-                    if(Gold_Level() + current_element < needed_gold)
+                    if (Gold_Level() + current_element < needed_gold)
                     {
-                        _BasicTasks.MoveMoveElement("//div[@class='packageItem']//div[@data-price-gold='"+current_element_string+"']","//div[@id='inv']");
+                        _BasicTasks.MoveMoveElement("//div[@class='packageItem']//div[@data-price-gold='" + current_element_string + "']", "//div[@id='inv']");
                         if (_BasicTasks.Search("//div[contains(@class,'ui-droppable')]"))
                         { _BasicTasks.ReleaseElement("//div[contains(@class,'ui-droppable')]"); }
                         else { continue; }
@@ -1492,7 +1491,7 @@ namespace Gladiatus_35
                         string best_choose_string = list.ElementAt(0).GetAttribute("data-price-gold");
                         int best_choose = (Gold_Level() + Convert.ToInt32(list.ElementAt(0).GetAttribute("data-price-gold"))) - needed_gold;
                         int position = 0;
-                        for (int i=0; i<list.Count; i++)
+                        for (int i = 0; i < list.Count; i++)
                         {
                             int temporary = (Gold_Level() + Convert.ToInt32(list.ElementAt(i).GetAttribute("data-price-gold"))) - needed_gold;
                             if (temporary < best_choose)
@@ -1508,12 +1507,12 @@ namespace Gladiatus_35
                         else { continue; }
                     }
                     bool changed = true;
-                    for(int i=0; i<5; i++)
+                    for (int i = 0; i < 5; i++)
                     {
-                        if(Gold_Level() == gold_before)
+                        if (Gold_Level() == gold_before)
                         { Thread.Sleep(1000); changed = false; }
                     }
-                    if(!changed) { driver.Navigate().Refresh(); }
+                    if (!changed) { driver.Navigate().Refresh(); }
                 }
             }
         }
@@ -1642,10 +1641,10 @@ namespace Gladiatus_35
         #region PRIVATE
         string Type_Pack(string choose)
         {
-            if(choose == "*") { return "Wszystko"; }
+            if (choose == "*") { return "Wszystko"; }
 
             int example = Convert.ToInt32(choose);
-            switch(example)
+            switch (example)
             {
                 case 1:
                     return "Bronie";
@@ -1685,10 +1684,10 @@ namespace Gladiatus_35
         }
         string Quality_Pack(string choose)
         {
-            if(choose == "*") { return "Normalny"; }
+            if (choose == "*") { return "Normalny"; }
 
             int example = Convert.ToInt32(choose);
-            switch(example)
+            switch (example)
             {
                 case 1:
                     return "Ceres (zielony)";
