@@ -492,6 +492,233 @@ namespace Gladiatus_35
                 }
             }
         }
+        public void Search_Pack()
+        {
+            if (!Properties.Settings.Default.pakujChecked || !File.Exists(Environment.CurrentDirectory + @"\items.txt")) { return; }
+
+            bool found = false;
+            string found_soulbound = "";
+            IReadOnlyCollection<IWebElement> items;
+
+            int lineCount = File.ReadLines(Environment.CurrentDirectory + @"\items.txt").Count();
+            if (lineCount == 0) { return; }
+            string[] lines = File.ReadAllLines(Environment.CurrentDirectory + @"\items.txt");
+            string[] class_items = new string[lines.Length];
+            string[] soulbound_items = new string[lines.Length];
+            string[] price_items = new string[lines.Length];
+            string[] level_items = new string[lines.Length];
+            string[] types = new string[lines.Length];
+            string[] qualities = new string[lines.Length];
+
+            int iterator = 0;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string[] separated_line = lines[i].Split(' ');
+                if (separated_line.Length == 6)
+                {
+                    class_items[iterator] = separated_line[0];
+                    soulbound_items[iterator] = separated_line[1];
+                    price_items[iterator] = separated_line[2];
+                    types[iterator] = separated_line[3];
+                    qualities[iterator] = separated_line[4];
+                    level_items[iterator] = separated_line[5];
+                    iterator++;
+                }
+            }
+
+            string type = types[0];
+            string quality = qualities[0];
+            bool types_good = true;
+            bool quality_good = true;
+            if (types.Contains("*")) { types_good = false; }
+            if(qualities.Contains("*")) { quality_good = false; }
+            if(types_good || quality_good)
+            {
+                for (int i = 0; i < class_items.Length; i++)
+                {
+                    if (type != types[i]) { types_good = false; }
+                    if (quality != qualities[i]) { quality_good = false; }
+                }
+            }
+
+            bool first = false;
+            bool second = false;
+            bool third = false;
+            bool names = false;
+            bool levels = false;
+            bool soulbounds = false;
+            int found_case = 0;
+            do
+            {
+                found = false;
+                Packages();
+                if (_BasicTasks.Search("//section[@style='display: none;']"))
+                { _BasicTasks.Click("//h2[@class='section-header'][contains(text(), 'Opcje')]"); }
+                if(types_good) { _BasicTasks.SelectElement("//select[@name='f']", Type_Pack(type)); }
+                if(quality_good) { _BasicTasks.SelectElement("//select[@name='fq']", Quality_Pack(quality)); }
+                if (types_good || quality_good) { _BasicTasks.Click("//input[@value='Filtr']"); }
+                items = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
+
+                do
+                {
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
+                        string name_class = items.ElementAt(i).GetAttribute("class");
+                        string level = items.ElementAt(i).GetAttribute("data-level");
+                        for(int j=0; j<class_items.Length; j++)
+                        {
+                            first = false;
+                            second = false;
+                            third = false;
+                            if(class_items[j] != "*") { names = true; } else { first = true; }
+                            if(level_items[j] != "*") { levels = true; } else { second = true; }
+                            if(soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
+                            if (names && class_items[j] == name_class) { first = true; }
+                            if(levels && level_items[j] == level) { second = true; }
+                            if(soulbounds && soulbound_items[j] == soul_bound) { third = true; }
+                            if(first && second && third) { found = true; found_case = j; break; }
+                        }
+                        if (found) { break; }
+                    }
+                    if (found) { break; }
+                    if (_BasicTasks.Search("//a[@class='paging_button paging_right_step']"))
+                    { _BasicTasks.Click("//a[@class='paging_button paging_right_step']"); }
+                    items = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
+                } while (_BasicTasks.Search("//a[@class='paging_button paging_right_step']"));
+                if (!found) { continue; }
+                if (!FreeBackpack()) { return; }
+                string path1 = "//div[@id='packages']//div";
+                string path2 = "//div[@id='inv']//div";
+                if (names)
+                {
+                    path1 += "[contains(@class='"+class_items[found_case]+"')]";
+                    path2 += "[contains(@class='" + class_items[found_case] + "')]";
+                }
+                if (levels)
+                {
+                    path1 += "[@data-level='" + level_items[found_case] + "']";
+                    path2 += "[@data-level='" + level_items[found_case] + "']";
+                }
+                if (soulbounds)
+                {
+                    path1 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
+                    path2 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
+                }
+                _BasicTasks.MoveMoveElement(path1, "//input[@name='show-item-info']");
+                if (_BasicTasks.Search("//div[@class='ui-droppable grid-droparea image-grayed active']"))
+                {
+                    _BasicTasks.ReleaseElement("//div[@class='ui-droppable grid-droparea image-grayed active']");
+                    if (!_BasicTasks.Search(path2)) { return; }
+                }
+                else { _BasicTasks.ReleaseElement("//input[@name='show-item-info']"); return; }
+
+                sell:
+                Guild_Market();
+                FreeBackpack();
+
+                while (_BasicTasks.Search("//div[@id='market_sell_box']//section[@style='display: none;']"))
+                { _BasicTasks.Click("//h2[@class='section-header'][text() = 'sprzedaj']"); }
+
+                _BasicTasks.MoveReleaseElement(path2, "//div[@id='market_sell']/div[@class='ui-droppable']");
+                _BasicTasks.SelectElement("//select[@name='dauer']", "24 h");
+                var cena = _BasicTasks.GetElement("//input[@name='preis']");
+                cena.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                cena.SendKeys(OpenQA.Selenium.Keys.Delete);
+                cena.SendKeys(Convert.ToString(price_items[found_case]));
+                _BasicTasks.Click("//input[@value='Oferta']");
+
+                if (_BasicTasks.Search("//div[@class='message fail']"))
+                { try { error_packing = true; Expedition(); goto sell; } catch { } }
+                else { error_packing = false; }
+            } while (found);
+
+            found = false;
+            FreeBackpack();
+            items = driver.FindElementsByXPath("//div[@id='inv']//div[contains(@class,'ui-draggable')]");
+            for (int i = 0; i < items.Count; i++)
+            {
+                string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
+                string name_class = items.ElementAt(i).GetAttribute("class");
+                string level = items.ElementAt(i).GetAttribute("data-level");
+                for (int j = 0; j < class_items.Length; j++)
+                {
+                    first = false;
+                    second = false;
+                    third = false;
+                    if (class_items[j] != "*") { names = true; } else { first = true; }
+                    if (level_items[j] != "*") { levels = true; } else { second = true; }
+                    if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
+                    if (names && class_items[j] == name_class) { first = true; }
+                    if (levels && level_items[j] == level) { second = true; }
+                    if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
+                    if (first && second && third) { found = true; found_case = j; break; }
+                }
+                if (found) { break; }
+            }
+
+            while (found)
+            {
+                sell_inv:
+                found = false;
+
+                Guild_Market();
+                FreeBackpack();
+                while (_BasicTasks.Search("//div[@id='market_sell_box']//section[@style='display: none;']"))
+                { _BasicTasks.Click("//h2[@class='section-header'][text() = 'sprzedaj']"); }
+
+                items = driver.FindElementsByXPath("//div[@id='inv']//div[contains(@class,'ui-draggable')]");
+                for (int i = 0; i < items.Count; i++)
+                {
+                    string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
+                    string name_class = items.ElementAt(i).GetAttribute("class");
+                    string level = items.ElementAt(i).GetAttribute("data-level");
+                    for (int j = 0; j < class_items.Length; j++)
+                    {
+                        first = false;
+                        second = false;
+                        third = false;
+                        if (class_items[j] != "*") { names = true; } else { first = true; }
+                        if (level_items[j] != "*") { levels = true; } else { second = true; }
+                        if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
+                        if (names && class_items[j] == name_class) { first = true; }
+                        if (levels && level_items[j] == level) { second = true; }
+                        if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
+                        if (first && second && third) { found = true; found_case = j; break; }
+                    }
+                    if (found) { break; }
+                }
+                if (!found) { continue; }
+                string path1 = "//div[@id='packages']//div";
+                string path2 = "//div[@id='inv']//div";
+                if (names)
+                {
+                    path1 += "[contains(@class='" + class_items[found_case] + "')]";
+                    path2 += "[contains(@class='" + class_items[found_case] + "')]";
+                }
+                if (levels)
+                {
+                    path1 += "[@data-level='" + level_items[found_case] + "']";
+                    path2 += "[@data-level='" + level_items[found_case] + "']";
+                }
+                if (soulbounds)
+                {
+                    path1 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
+                    path2 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
+                }
+                _BasicTasks.MoveReleaseElement(path2, "//div[@id='market_sell']/div[@class='ui-droppable']");
+                _BasicTasks.SelectElement("//select[@name='dauer']", "24 h");
+                var cena_2 = _BasicTasks.GetElement("//input[@name='preis']");
+                cena_2.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                cena_2.SendKeys(OpenQA.Selenium.Keys.Delete);
+                cena_2.SendKeys(Convert.ToString(price_items[found_case]));
+                _BasicTasks.Click("//input[@value='Oferta']");
+
+                if (_BasicTasks.Search("//div[@class='message fail']"))
+                { try { error_packing = true; Expedition(); goto sell_inv; } catch { } }
+                else { error_packing = false; }
+            }
+        }
         public void BuyFood()
         {
             Form1.currently_running = "Buying food..";
@@ -1359,233 +1586,6 @@ namespace Gladiatus_35
             if (eventPoints > 0 && _BasicTasks.Search("//button[@class='expedition_button awesome-button ']"))
             {
                 _BasicTasks.Click("//button[@class='expedition_button awesome-button ']");
-            }
-        }
-        public void Search_Pack()
-        {
-            if (!Properties.Settings.Default.pakujChecked || !File.Exists(Environment.CurrentDirectory + @"\items.txt")) { return; }
-
-            bool found = false;
-            string found_soulbound = "";
-            IReadOnlyCollection<IWebElement> items;
-
-            int lineCount = File.ReadLines(Environment.CurrentDirectory + @"\items.txt").Count();
-            if (lineCount == 0) { return; }
-            string[] lines = File.ReadAllLines(Environment.CurrentDirectory + @"\items.txt");
-            string[] class_items = new string[lines.Length];
-            string[] soulbound_items = new string[lines.Length];
-            string[] price_items = new string[lines.Length];
-            string[] level_items = new string[lines.Length];
-            string[] types = new string[lines.Length];
-            string[] qualities = new string[lines.Length];
-
-            int iterator = 0;
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string[] separated_line = lines[i].Split(' ');
-                if (separated_line.Length == 6)
-                {
-                    class_items[iterator] = separated_line[0];
-                    soulbound_items[iterator] = separated_line[1];
-                    price_items[iterator] = separated_line[2];
-                    types[iterator] = separated_line[3];
-                    qualities[iterator] = separated_line[4];
-                    level_items[iterator] = separated_line[5];
-                    iterator++;
-                }
-            }
-
-            string type = types[0];
-            string quality = qualities[0];
-            bool types_good = true;
-            bool quality_good = true;
-            if (types.Contains("*")) { types_good = false; }
-            if(qualities.Contains("*")) { quality_good = false; }
-            if(types_good || quality_good)
-            {
-                for (int i = 0; i < class_items.Length; i++)
-                {
-                    if (type != types[i]) { types_good = false; }
-                    if (quality != qualities[i]) { quality_good = false; }
-                }
-            }
-
-            bool first = false;
-            bool second = false;
-            bool third = false;
-            bool names = false;
-            bool levels = false;
-            bool soulbounds = false;
-            int found_case = 0;
-            do
-            {
-                found = false;
-                Packages();
-                if (_BasicTasks.Search("//section[@style='display: none;']"))
-                { _BasicTasks.Click("//h2[@class='section-header'][contains(text(), 'Opcje')]"); }
-                if(types_good) { _BasicTasks.SelectElement("//select[@name='f']", Type_Pack(type)); }
-                if(quality_good) { _BasicTasks.SelectElement("//select[@name='fq']", Quality_Pack(quality)); }
-                if (types_good || quality_good) { _BasicTasks.Click("//input[@value='Filtr']"); }
-                items = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
-
-                do
-                {
-                    for (int i = 0; i < items.Count; i++)
-                    {
-                        string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
-                        string name_class = items.ElementAt(i).GetAttribute("class");
-                        string level = items.ElementAt(i).GetAttribute("data-level");
-                        for(int j=0; j<class_items.Length; j++)
-                        {
-                            first = false;
-                            second = false;
-                            third = false;
-                            if(class_items[j] != "*") { names = true; } else { first = true; }
-                            if(level_items[j] != "*") { levels = true; } else { second = true; }
-                            if(soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
-                            if (names && class_items[j] == name_class) { first = true; }
-                            if(levels && level_items[j] == level) { second = true; }
-                            if(soulbounds && soulbound_items[j] == soul_bound) { third = true; }
-                            if(first && second && third) { found = true; found_case = j; break; }
-                        }
-                        if (found) { break; }
-                    }
-                    if (found) { break; }
-                    if (_BasicTasks.Search("//a[@class='paging_button paging_right_step']"))
-                    { _BasicTasks.Click("//a[@class='paging_button paging_right_step']"); }
-                    items = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
-                } while (_BasicTasks.Search("//a[@class='paging_button paging_right_step']"));
-                if (!found) { continue; }
-                if (!FreeBackpack()) { return; }
-                string path1 = "//div[@id='packages']//div";
-                string path2 = "//div[@id='inv']//div";
-                if (names)
-                {
-                    path1 += "[contains(@class='"+class_items[found_case]+"')]";
-                    path2 += "[contains(@class='" + class_items[found_case] + "')]";
-                }
-                if (levels)
-                {
-                    path1 += "[@data-level='" + level_items[found_case] + "']";
-                    path2 += "[@data-level='" + level_items[found_case] + "']";
-                }
-                if (soulbounds)
-                {
-                    path1 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
-                    path2 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
-                }
-                _BasicTasks.MoveMoveElement(path1, "//input[@name='show-item-info']");
-                if (_BasicTasks.Search("//div[@class='ui-droppable grid-droparea image-grayed active']"))
-                {
-                    _BasicTasks.ReleaseElement("//div[@class='ui-droppable grid-droparea image-grayed active']");
-                    if (!_BasicTasks.Search(path2)) { return; }
-                }
-                else { _BasicTasks.ReleaseElement("//input[@name='show-item-info']"); return; }
-
-                sell:
-                Guild_Market();
-                FreeBackpack();
-
-                while (_BasicTasks.Search("//div[@id='market_sell_box']//section[@style='display: none;']"))
-                { _BasicTasks.Click("//h2[@class='section-header'][text() = 'sprzedaj']"); }
-
-                _BasicTasks.MoveReleaseElement(path2, "//div[@id='market_sell']/div[@class='ui-droppable']");
-                _BasicTasks.SelectElement("//select[@name='dauer']", "24 h");
-                var cena = _BasicTasks.GetElement("//input[@name='preis']");
-                cena.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                cena.SendKeys(OpenQA.Selenium.Keys.Delete);
-                cena.SendKeys(Convert.ToString(price_items[found_case]));
-                _BasicTasks.Click("//input[@value='Oferta']");
-
-                if (_BasicTasks.Search("//div[@class='message fail']"))
-                { try { error_packing = true; Expedition(); goto sell; } catch { } }
-                else { error_packing = false; }
-            } while (found);
-
-            found = false;
-            FreeBackpack();
-            items = driver.FindElementsByXPath("//div[@id='inv']//div[contains(@class,'ui-draggable')]");
-            for (int i = 0; i < items.Count; i++)
-            {
-                string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
-                string name_class = items.ElementAt(i).GetAttribute("class");
-                string level = items.ElementAt(i).GetAttribute("data-level");
-                for (int j = 0; j < class_items.Length; j++)
-                {
-                    first = false;
-                    second = false;
-                    third = false;
-                    if (class_items[j] != "*") { names = true; } else { first = true; }
-                    if (level_items[j] != "*") { levels = true; } else { second = true; }
-                    if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
-                    if (names && class_items[j] == name_class) { first = true; }
-                    if (levels && level_items[j] == level) { second = true; }
-                    if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
-                    if (first && second && third) { found = true; found_case = j; break; }
-                }
-                if (found) { break; }
-            }
-
-            while (found)
-            {
-                sell_inv:
-                found = false;
-
-                Guild_Market();
-                FreeBackpack();
-                while (_BasicTasks.Search("//div[@id='market_sell_box']//section[@style='display: none;']"))
-                { _BasicTasks.Click("//h2[@class='section-header'][text() = 'sprzedaj']"); }
-
-                items = driver.FindElementsByXPath("//div[@id='inv']//div[contains(@class,'ui-draggable')]");
-                for (int i = 0; i < items.Count; i++)
-                {
-                    string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
-                    string name_class = items.ElementAt(i).GetAttribute("class");
-                    string level = items.ElementAt(i).GetAttribute("data-level");
-                    for (int j = 0; j < class_items.Length; j++)
-                    {
-                        first = false;
-                        second = false;
-                        third = false;
-                        if (class_items[j] != "*") { names = true; } else { first = true; }
-                        if (level_items[j] != "*") { levels = true; } else { second = true; }
-                        if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
-                        if (names && class_items[j] == name_class) { first = true; }
-                        if (levels && level_items[j] == level) { second = true; }
-                        if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
-                        if (first && second && third) { found = true; found_case = j; break; }
-                    }
-                    if (found) { break; }
-                }
-                if (!found) { continue; }
-                string path1 = "//div[@id='packages']//div";
-                string path2 = "//div[@id='inv']//div";
-                if (names)
-                {
-                    path1 += "[contains(@class='" + class_items[found_case] + "')]";
-                    path2 += "[contains(@class='" + class_items[found_case] + "')]";
-                }
-                if (levels)
-                {
-                    path1 += "[@data-level='" + level_items[found_case] + "']";
-                    path2 += "[@data-level='" + level_items[found_case] + "']";
-                }
-                if (soulbounds)
-                {
-                    path1 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
-                    path2 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
-                }
-                _BasicTasks.MoveReleaseElement(path1, "//div[@id='market_sell']/div[@class='ui-droppable']");
-                _BasicTasks.SelectElement("//select[@name='dauer']", "24 h");
-                var cena_2 = _BasicTasks.GetElement("//input[@name='preis']");
-                cena_2.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                cena_2.SendKeys(OpenQA.Selenium.Keys.Delete);
-                cena_2.SendKeys(Convert.ToString(price_items[found_case]));
-                _BasicTasks.Click("//input[@value='Oferta']");
-
-                if (_BasicTasks.Search("//div[@class='message fail']"))
-                { try { error_packing = true; Expedition(); goto sell_inv; } catch { } }
-                else { error_packing = false; }
             }
         }
         public int ReturnInt(string ścieżka)
