@@ -205,6 +205,7 @@ namespace Gladiatus_35
             button1.Text = "BUY RINGS";
             button3.Text = "START BOTTING";
             button4.Text = "PACK GOLD";
+            button5.Text = "WATCH AUCTIONS";
             button6.Text = "SELL ITEMS";
             button10.Text = "TAKE OUT GOLD";
         }
@@ -327,7 +328,6 @@ namespace Gladiatus_35
                             Check_Updates();
                             _Tasks.Waith_Auction_House();
                             watch_auctions = false;
-                            TurnOff();
                             Send_Notification(4);
                         }
 

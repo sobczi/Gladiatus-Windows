@@ -1623,7 +1623,7 @@ namespace Gladiatus_35
         {
             AuctionHouse();
             bool non_stop = true;
-            while (non_stop)
+            while (non_stop && Form1.watch_auctions)
             {
                 IWebElement element = driver.FindElementByXPath("//span[@class='description_span_right']");
                 string element_current = element.GetAttribute("textContent");
