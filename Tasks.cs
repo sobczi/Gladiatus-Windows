@@ -281,6 +281,7 @@ namespace Gladiatus_35
                 }
                 #endregion
                 #region Attack
+                _BasicTasks.WaitForXPath("//img[contains(@src,'combatloc.gif')]");
                 _BasicTasks.Click("//img[contains(@src,'combatloc.gif')]");
                 #endregion
                 error_packing = false;
