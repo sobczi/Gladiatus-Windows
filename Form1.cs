@@ -201,6 +201,7 @@ namespace Gladiatus_35
             moveGoldAction = false;
             buyFoodAction = false;
             sellItemsAction = false;
+            watch_auctions = false;
 
             button1.Text = "BUY RINGS";
             button3.Text = "START BOTTING";
