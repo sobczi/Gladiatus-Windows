@@ -421,8 +421,8 @@ namespace Gladiatus_35
 
                 if (by_name)
                 {
-                    path = "[contains(@class,'" + name_item_work + "')]";
-                    path2 = "[contains(@class,'" + name_item_work + "')]";
+                    path += "[contains(@class,'" + name_item_work + "')]";
+                    path2 += "[contains(@class,'" + name_item_work + "')]";
                 }
 
                 if (by_soulbound)
