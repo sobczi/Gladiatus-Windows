@@ -335,6 +335,7 @@ namespace Gladiatus_35
                         {
                             Check_Updates();
                             Thread.Sleep(1500);
+                            currently_running = "Waiting for actions..";
                         }
                     }
                 }
@@ -403,6 +404,7 @@ namespace Gladiatus_35
         {
             if (turn_off && Properties.Settings.Default.main_bot)
             {
+                Form1.currently_running = "Waiting for exit..";
                 string[] processes = new string[7];
                 processes[0] = "Gladiatus_1";
                 processes[1] = "Gladiatus_25";

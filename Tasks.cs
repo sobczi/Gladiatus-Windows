@@ -403,7 +403,7 @@ namespace Gladiatus_35
                         {
                             if (by_name && name_item != name_item_work ||
                                 by_soulbound && soulbound != soulbound_work ||
-                                 by_level && level != level_work) { return; }
+                                 by_level && level != level_work) { continue; }
                             int gold_before = Gold_Level();
                             _BasicTasks.Click("//section[@id='market_table']//tr[position()='" + i + "']/td[@align='center']/input[@value='Kup']");
                             if (gold_before - Gold_Level() == price_item_work) { bought = true; }
