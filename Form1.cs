@@ -109,6 +109,12 @@ namespace Gladiatus_35
             Thread life_tray = new Thread(Life_Tray_Info);
             life_tray.Start();
         }
+        void Form1_Resize(object sender, EventArgs e) { Hide_To_Tray(); }
+        public void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            notifyIcon1.Visible = false;
+            if (killEverything) { Environment.Exit(0); }
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             if (!buyRingsAction) { TurnOff(); buyRingsAction = true; button1.Text = " BUYING RINGS.."; }
@@ -136,6 +142,11 @@ namespace Gladiatus_35
             {
                 MessageBox.Show("WAIT UNTILL TASK ENDS..");
             }
+        }
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (!watch_auctions) { TurnOff(); watch_auctions = true; button5.Text = "WATCHING AUCTIONS.."; }
+            else { MessageBox.Show("WAIT UNTILL TASK ENDS.."); }
         }
         private void button6_Click(object sender, EventArgs e)
         {
@@ -169,10 +180,19 @@ namespace Gladiatus_35
                 MessageBox.Show("WAIT UNTILL TASK ENDS..");
             }
         }
-        public void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e) { Show_From_Tray(); }
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            notifyIcon1.Visible = false;
-            if (killEverything) { Environment.Exit(0); }
+            _BasicTasks.Exit(turn_off);
+        }
+        private void SetNotifyIconText(NotifyIcon ni, string text)
+        {
+            if (text.Length >= 128) throw new ArgumentOutOfRangeException("Text limited to 127 characters");
+            Type t = typeof(NotifyIcon);
+            BindingFlags hidden = BindingFlags.NonPublic | BindingFlags.Instance;
+            t.GetField("text", hidden).SetValue(ni, text);
+            if ((bool)t.GetField("added", hidden).GetValue(ni))
+                t.GetMethod("UpdateIcon", hidden).Invoke(ni, new object[] { true });
         }
         #endregion
         void TurnOff()
@@ -272,6 +292,7 @@ namespace Gladiatus_35
                             _Tasks.Pack_Gold();
                             moveGoldAction = false;
                             TurnOff();
+                            Send_Notification(1);
                         }
 
                         while (sellItemsAction)
@@ -280,6 +301,7 @@ namespace Gladiatus_35
                             _Tasks.SellItems(true);
                             sellItemsAction = false;
                             TurnOff();
+                            Send_Notification(2);
                         }
 
                         while (takeGoldAction)
@@ -288,6 +310,7 @@ namespace Gladiatus_35
                             _Tasks.TakeGold();
                             takeGoldAction = false;
                             TurnOff();
+                            Send_Notification(3);
                         }
 
                         while (buyRingsAction)
@@ -296,6 +319,7 @@ namespace Gladiatus_35
                             _Tasks.Buy_Auction_House();
                             buyRingsAction = false;
                             TurnOff();
+                            Send_Notification(3);
                         }
 
                         while (watch_auctions)
@@ -304,6 +328,7 @@ namespace Gladiatus_35
                             _Tasks.Waith_Auction_House();
                             watch_auctions = false;
                             TurnOff();
+                            Send_Notification(4);
                         }
 
                         while (!botAction && !moveGoldAction && !sellItemsAction && !takeGoldAction && !buyRingsAction)
@@ -316,8 +341,29 @@ namespace Gladiatus_35
             }
             catch (Exception _exception) { notifyIcon1.BalloonTipText = "RESTARTING BOT (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000); _BasicTasks.Restart(_exception, server_string); }
         }
-        void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e) { Show_From_Tray(); }
-        void Form1_Resize(object sender, EventArgs e) { Hide_To_Tray(); }
+        void Send_Notification(int notification_case)
+        {
+            switch(notification_case)
+            {
+                case 1:
+                    notifyIcon1.BalloonTipText = "MOVING GOLD: READY! (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000);
+                    break;
+                case 2:
+                    notifyIcon1.BalloonTipText = "SELLINGS ITEMS: READY! (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000);
+                    break;
+                case 3:
+                    notifyIcon1.BalloonTipText = "TAKING GOLD OUT: READY! (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000);
+                    break;
+                case 4:
+                    notifyIcon1.BalloonTipText = "BUY RINGS: READY! (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000);
+                    break;
+                case 5:
+                    notifyIcon1.BalloonTipText = "WATCHING AUCTION: READY! (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000);
+                    break;
+                default:
+                    return;
+            }
+        }
         void Catch_Mouse()
         {
             bool non_stop = true;
@@ -405,20 +451,6 @@ namespace Gladiatus_35
                 Thread.Sleep(500);
             }
         }
-        private void SetNotifyIconText(NotifyIcon ni, string text)
-        {
-            if (text.Length >= 128) throw new ArgumentOutOfRangeException("Text limited to 127 characters");
-            Type t = typeof(NotifyIcon);
-            BindingFlags hidden = BindingFlags.NonPublic | BindingFlags.Instance;
-            t.GetField("text", hidden).SetValue(ni, text);
-            if ((bool)t.GetField("added", hidden).GetValue(ni))
-                t.GetMethod("UpdateIcon", hidden).Invoke(ni, new object[] { true });
-        }
-        private void button5_Click(object sender, EventArgs e)
-        {
-            if (!watch_auctions) { TurnOff(); watch_auctions = true; button5.Text = "WATCHING AUCTIONS.."; }
-            else { MessageBox.Show("WAIT UNTILL TASK ENDS.."); }
-        }
         void Check_Updates()
         {
             if (update_data)
@@ -426,11 +458,6 @@ namespace Gladiatus_35
                 _Tasks = new Tasks(driver); _BasicTasks = new BasicTasks(driver);
                 _Tests = new Tests(driver); update_data = false;
             }
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            _BasicTasks.Exit(turn_off);
         }
     }
 }
