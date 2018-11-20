@@ -371,11 +371,10 @@ namespace Gladiatus_35
                     { found_case = i; orginal_case = i; break; }
                 }
 
-                iterator = 2;
-                while (_BasicTasks.Search("//section[@id='market_table']//tr[position()='" + iterator + "']/td[@align='center']/input[@value='Kup']"))
-                { iterator++; }
-
                 loop_label:
+                int first_iterator = driver.FindElementsByXPath("//input[@value='Kup']").Count();
+                int second_iterator = driver.FindElementsByXPath("//input[@value='Anuluj']").Count();
+                iterator = first_iterator + second_iterator;
                 int price_item_work = Convert.ToInt32(price_items[found_case]);
                 string name_item_work = class_items[found_case];
                 string soulbound_work = soulbound_items[found_case];
@@ -387,7 +386,7 @@ namespace Gladiatus_35
                 if (name_item_work != "*") { by_name = true; }
                 if (soulbound_work != "*") { by_soulbound = true; }
                 if (level_work != "*") { by_level = true; }
-                for (int i = 2; i < iterator; i++)
+                for (int i = 2; i <= iterator; i++)
                 {
                     if (_BasicTasks.Search("//section[@id='market_table']//tr[position()='" + i + "']/td[@align='center']/input[@value='Kup']"))
                     {
@@ -1435,6 +1434,7 @@ namespace Gladiatus_35
             Arena();
             _BasicTasks.Click("//a[@class='menuitem '][text() = 'Roztapiarka']");
 
+            ExtractBackpack();
             for (int i = 0; i < 2; i++)
             {
                 if (_BasicTasks.Search("//div[contains(@class,'forge_closed " + i + "')]") && _BasicTasks.Search("//div[@id='inv']//div[contains(@class,'ui-draggable')]"))
