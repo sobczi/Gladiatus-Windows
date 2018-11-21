@@ -276,12 +276,11 @@ namespace Gladiatus_35
                                 if (expedition_points == 0 && !Properties.Settings.Default.dungeonsChecked && british_land && !Properties.Settings.Default.farm_arenas ||
                                     expedition_points == 0 && british_land && !Properties.Settings.Default.farm_arenas ||
                                     dungeon_points == 0 && !Properties.Settings.Default.expeditionsChecked && british_land && !Properties.Settings.Default.farm_arenas)
-                                { break; }
+                                { if (!_Tasks.Take_Pater_Costume()) { break; } }
 
                             } while (dungeon_points > 0 || expedition_points > 0 || Properties.Settings.Default.farm_arenas);
 
                             if (!botAction) { break; }
-
                             _Tasks.ExtractItems();
                             _Tasks.SellItems(false);
                             _Tasks.Pack_Gold();

@@ -330,7 +330,8 @@ namespace Gladiatus_35
         }
         public void Pack_Gold()
         {
-            string file_path = @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Items .txt files for Gladiatus_bot" + @"\items" + server_number + ".txt";
+            string file_path = 
+                @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Items .txt files for Gladiatus_bot" + @"\items" + server_number + ".txt";
             if (!File.Exists(file_path)) { return; }
             while (Properties.Settings.Default.pakujChecked &&
                 Gold_Level() >= Convert.ToInt32(Properties.Settings.Default.minimum_gold_pack))
@@ -608,7 +609,7 @@ namespace Gladiatus_35
                 }
                 _BasicTasks.MoveMoveElement(path1, "//input[@name='show-item-info']");
                 if (_BasicTasks.Search("//div[@class='ui-droppable grid-droparea image-grayed active']"))
-                {
+                {   
                     _BasicTasks.ReleaseElement("//div[@class='ui-droppable grid-droparea image-grayed active']");
                     if (!_BasicTasks.Search(path2)) { return; }
                 }
@@ -834,6 +835,7 @@ namespace Gladiatus_35
                         break;
                     case 3:
                         Packages();
+                        if (_BasicTasks.Search("//section[@style='display: none;']")) { _BasicTasks.Click("//h2[@class='section-header'][contains(text(), 'Opcje')]"); }
                         _BasicTasks.SelectElement("//select[@name='f']", "Przyspieszacze");
                         _BasicTasks.Click("//input[@value='Filtr']");
                         bool first_loop = true;
@@ -1065,7 +1067,7 @@ namespace Gladiatus_35
                 int categoryNumber = 1;
                 int shop = 1;
                 bool first = true;
-
+                string file_path = @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Selling items\selling_items" + server_number + ".txt";
                 start:
 
                 bool secondTabWarrior = false;
@@ -1075,6 +1077,13 @@ namespace Gladiatus_35
                 List<string> collectionSelling = new List<string>();
                 List<string> collectionReadyClass = new List<string>();
                 #endregion
+
+                if(File.Exists(file_path))
+                {
+                    string[] lines = File.ReadAllLines(file_path);
+                    for(int i=0; i<lines.Length; i++)
+                        collectionSelling.Add(lines[i]);
+                }
 
                 #region ChooseCategory
                 Packages();
@@ -1134,6 +1143,8 @@ namespace Gladiatus_35
                             else { categoryNumber++; goto start; }
                             break;
                         default:
+                            if (File.Exists(file_path))
+                                File.Delete(file_path);
                             return;
                     }
                 }
@@ -1196,6 +1207,8 @@ namespace Gladiatus_35
                             else { categoryNumber++; goto start; }
                             break;
                         default:
+                            if (File.Exists(file_path))
+                                File.Delete(file_path);
                             return;
                     }
                 }
@@ -1264,14 +1277,21 @@ namespace Gladiatus_35
                                 continue;
                             }
                         }
-                        else { _BasicTasks.ReleaseElement("//input[@name='show-item-info']"); ; noPlace = true; break; }
+                        else { _BasicTasks.ReleaseElement("//input[@name='show-item-info']"); noPlace = true; break; }
                     }
                     if (noPlace && !gotAtLeastOne) { return; }
                     else if (noPlace) { break; }
                 }
                 if (!gotAtLeastOne) { categoryNumber++; goto start; }
                 #endregion
-
+                string[] temporary_lines = File.ReadAllLines(file_path);
+                List<string> save_to_file = new List<string>();
+                for (int i=0; i<collectionSelling.Count; i++)
+                {
+                    if(!temporary_lines.Contains(collectionSelling.ElementAt(i)))
+                        save_to_file.Add(collectionSelling.ElementAt(i));
+                }
+                File.AppendAllLines(file_path, save_to_file);
                 #region Shop Choose
                 changeShop:
                 gotAtLeastOne = false;
@@ -1376,7 +1396,8 @@ namespace Gladiatus_35
                 notMovedYet:
                 while (collectionSelling.Count != 0)
                 {
-                    if (_BasicTasks.Search("//div[@id='shop']//div[@data-hash='" + collectionSelling.ElementAt(0) + "']") || !_BasicTasks.Search("//div[@id='inv']//div[@data-hash='" + collectionSelling.ElementAt(0) + "']"))
+                    if (_BasicTasks.Search("//div[@id='shop']//div[@data-hash='" + collectionSelling.ElementAt(0) + "']") 
+                        || !_BasicTasks.Search("//div[@id='inv']//div[@data-hash='" + collectionSelling.ElementAt(0) + "']"))
                     { collectionSelling.RemoveAt(0); continue; }
                     _BasicTasks.MoveMoveElement("//div[@id='inv']//div[@data-hash='" + collectionSelling.ElementAt(0) + "']", "//a[@class='awesome-tabs current']");
                     if (_BasicTasks.Search("//div[@id='shop']//div[@class='ui-droppable grid-droparea image-grayed active']"))
@@ -1707,6 +1728,20 @@ namespace Gladiatus_35
                 _BasicTasks.Refresh();
                 Thread.Sleep(500);
             }
+        }
+        public bool Take_Pater_Costume()
+        {
+            if (Convert.ToInt32(driver.FindElementByXPath("//div[@id='header_values_level']").GetAttribute("textContent")) < 100)
+                return false;
+            _BasicTasks.Click("//a[@title='Podgląd']");
+            _BasicTasks.Click("//input[@value='zmień']");
+            if (_BasicTasks.Search("//input[contains(@onclick,'Zbroja Disa Patera')]"))
+            {
+                _BasicTasks.Click("//input[contains(@onclick,'Zbroja Disa Patera')]");
+                _BasicTasks.Click("//td[@id='buttonleftchangeCostume']/input[@value='Tak']");
+                return true;
+            }
+            return false;
         }
         #endregion
 
@@ -2049,6 +2084,13 @@ namespace Gladiatus_35
         }
         void Second_Tab_Sellers()
         {
+            int iterator = 0;
+            while(!_BasicTasks.Search("//div[@class='shopTab'][text() = 'Ⅱ']"))
+            {
+                Thread.Sleep(1000);
+                if (iterator == 5) { return; }
+                iterator++;
+            }
             _BasicTasks.Click("//div[@class='shopTab'][text() = 'Ⅱ']");
         }
         void Third_Tab_Sellers()
