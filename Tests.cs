@@ -21,7 +21,6 @@ namespace Gladiatus_35
 
         public void RunTests()
         {
-            throw new System.ArgumentException("hehe");
         }
         public void ReadingNames()
         {
