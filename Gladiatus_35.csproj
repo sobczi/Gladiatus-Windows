@@ -130,6 +130,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="Selling Settings.resx">
       <DependentUpon>Selling Settings.cs</DependentUpon>
@@ -153,6 +154,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="items%2835%29.txt" />
     <Content Include="replace.txt" />
     <Content Include="shield_and_swords.ico" />
   </ItemGroup>

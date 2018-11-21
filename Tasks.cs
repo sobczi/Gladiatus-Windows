@@ -330,14 +330,15 @@ namespace Gladiatus_35
         }
         public void Pack_Gold()
         {
-            if (!File.Exists(Environment.CurrentDirectory + @"\\items"+server_number+".txt")) { return; }
+            string file_path = @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Items .txt files for Gladiatus_bot" + @"\items" + server_number + ".txt";
+            if (!File.Exists(file_path)) { return; }
             while (Properties.Settings.Default.pakujChecked &&
                 Gold_Level() >= Convert.ToInt32(Properties.Settings.Default.minimum_gold_pack))
             {
                 Form1.currently_running = "Packing gold..";
-                int lineCount = File.ReadLines(Environment.CurrentDirectory + @"\\items" + server_number + ".txt").Count();
+                int lineCount = File.ReadLines(file_path).Count();
                 if (lineCount == 0) { return; }
-                string[] lines = File.ReadAllLines(Environment.CurrentDirectory + @"\\items" + server_number + ".txt");
+                string[] lines = File.ReadAllLines(file_path);
                 string[] class_items = new string[lines.Length];
                 string[] soulbound_items = new string[lines.Length];
                 string[] price_items = new string[lines.Length];
