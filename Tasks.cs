@@ -330,13 +330,14 @@ namespace Gladiatus_35
         }
         public void Pack_Gold()
         {
-            if (!File.Exists(Environment.CurrentDirectory + @"\items.txt")) { return; }
+            if (!File.Exists(Environment.CurrentDirectory + @"\\items"+server_number+".txt")) { return; }
             while (Properties.Settings.Default.pakujChecked &&
                 Gold_Level() >= Convert.ToInt32(Properties.Settings.Default.minimum_gold_pack))
             {
-                int lineCount = File.ReadLines(Environment.CurrentDirectory + @"\items.txt").Count();
+                Form1.currently_running = "Packing gold..";
+                int lineCount = File.ReadLines(Environment.CurrentDirectory + @"\\items" + server_number + ".txt").Count();
                 if (lineCount == 0) { return; }
-                string[] lines = File.ReadAllLines(Environment.CurrentDirectory + @"\items.txt");
+                string[] lines = File.ReadAllLines(Environment.CurrentDirectory + @"\\items" + server_number + ".txt");
                 string[] class_items = new string[lines.Length];
                 string[] soulbound_items = new string[lines.Length];
                 string[] price_items = new string[lines.Length];
@@ -860,33 +861,33 @@ namespace Gladiatus_35
                         for (int i = 0; i < 3; i++)
                         {
                             changed = false;
-                            if (i_strength[i] >= 3) { i_strength[i] = 0; changed = true; }
+                            if (i_strength[i] >= boosters_per_type) { i_strength[i] = 0; changed = true; }
                             if (!changed) { i_strength[i] -= boosters_per_type; i_strength[i] *= -1; need_boosters = true; }
 
                             changed = false;
-                            if (i_mastery[i] >= 3) { i_mastery[i] = 0; changed = true; }
+                            if (i_mastery[i] >= boosters_per_type) { i_mastery[i] = 0; changed = true; }
                             if (!changed) { i_mastery[i] -= boosters_per_type; i_mastery[i] *= -1; need_boosters = true; }
 
                             changed = false;
-                            if (i_skill[i] >= 3) { i_skill[i] = 0; changed = true; }
+                            if (i_skill[i] >= boosters_per_type) { i_skill[i] = 0; changed = true; }
                             if (!changed) { i_skill[i] -= boosters_per_type; i_skill[i] *= -1; need_boosters = true; }
 
                             changed = false;
-                            if (i_physic[i] >= 3) { i_physic[i] = 0; changed = true; }
+                            if (i_physic[i] >= boosters_per_type) { i_physic[i] = 0; changed = true; }
                             if (!changed) { i_physic[i] -= boosters_per_type; i_physic[i] *= -1; need_boosters = true; }
 
                             changed = false;
-                            if (i_charisma[i] >= 3) { i_charisma[i] = 0; changed = true; }
+                            if (i_charisma[i] >= boosters_per_type) { i_charisma[i] = 0; changed = true; }
                             if (!changed) { i_charisma[i] -= boosters_per_type; i_charisma[i] *= -1; need_boosters = true; }
 
                             changed = false;
-                            if (i_inteligence[i] >= 3) { i_inteligence[i] = 0; changed = true; }
+                            if (i_inteligence[i] >= boosters_per_type) { i_inteligence[i] = 0; changed = true; }
                             if (!changed) { i_inteligence[i] -= boosters_per_type; i_inteligence[i] *= -1; need_boosters = true; }
 
                             if (i != 3)
                             {
                                 changed = false;
-                                if (i_health[i] >= 3) { i_health[i] = 0; changed = true; }
+                                if (i_health[i] >= boosters_per_type) { i_health[i] = 0; changed = true; }
                                 if (!changed) { i_health[i] -= boosters_per_type; i_health[i] *= -1; need_boosters = true; }
                             }
                         }
@@ -899,15 +900,84 @@ namespace Gladiatus_35
                         return;
                 }
 
-                _BasicTasks.Click("//input[@value='Filtr']");
+                //List<string> at_first = new List<string>();
+                //string smallest_value = "";
+                //bool added;
+                //do
+                //{
+                //    added = false;
+                //    for(int i=0; i<3; i++)
+                //    {
+                //        int smallest_integer = 1;
+                //        if (i_strength[i] != 0 && i_strength[i] >= smallest_integer)
+                //        {
+                //            smallest_integer = i_strength[i]; added = true;
+                //            smallest_value = "";
+                //            smallest_value += "1" + Convert.ToString(i);
+                //            i_strength[i] = 0;
+                //        }
 
+                //        if (i_mastery[i] != 0 && i_mastery[i] >= smallest_integer)
+                //        {
+                //            smallest_integer = i_mastery[i]; added = true;
+                //            smallest_value = "";
+                //            smallest_value += "2" + Convert.ToString(i);
+                //            i_mastery[i] = 0;
+                //        }
+
+                //        if (i_skill[i] != 0 && i_skill[i] >= smallest_integer)
+                //        {
+                //            smallest_integer = i_skill[i]; added = true;
+                //            smallest_value = "";
+                //            smallest_value += "2" + Convert.ToString(i);
+                //            i_skill[i] = 0;
+                //        }
+
+                //        if (i_physic[i] != 0 && i_physic[i] >= smallest_integer)
+                //        {
+                //            smallest_integer = i_physic[i]; added = true;
+                //            smallest_value = "";
+                //            smallest_value += "2" + Convert.ToString(i);
+                //            i_physic[i] = 0;
+                //        }
+
+                //        if (i_charisma[i] != 0 && i_charisma[i] >= smallest_integer)
+                //        {
+                //            smallest_integer = i_charisma[i]; added = true;
+                //            smallest_value = "";
+                //            smallest_value += "2" + Convert.ToString(i);
+                //            i_charisma[i] = 0;
+                //        }
+
+                //        if (i_inteligence[i] != 0 && i_inteligence[i] >= smallest_integer)
+                //        {
+                //            smallest_integer = i_inteligence[i]; added = true;
+                //            smallest_value = "";
+                //            smallest_value += "2" + Convert.ToString(i);
+                //            i_inteligence[i] = 0;
+                //        }
+
+                //        if(i != 3)
+                //        {
+                //            if (i_health[i] != 0 && i_health[i] >= smallest_integer)
+                //            {
+                //                smallest_integer = i_health[i]; added = true;
+                //                smallest_value = "";
+                //                smallest_value += "2" + Convert.ToString(i);
+                //                i_health[i] = 0;
+                //            }
+                //        }
+                //    }
+                //    if (added)
+                //        at_first.Add(smallest_value);
+                //} while (added);
+
+                _BasicTasks.Click("//input[@value='Filtr']");
                 IReadOnlyCollection<IWebElement> list = driver.FindElementsByXPath("//div[@id='auction_table']//form[@method='post']");
                 auctionForms = new string[list.Count];
 
                 for (int i = 0; i < list.Count; i++)
-                {
                     auctionForms[i] = Convert.ToString(list.ElementAt(i).GetAttribute("id"));
-                }
 
                 if (RingOrAmulet == 3)
                 {
