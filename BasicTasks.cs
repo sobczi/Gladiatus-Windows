@@ -109,14 +109,12 @@ namespace Gladiatus_35
             driver.Navigate().Refresh();
             return;
         }
-        public void Restart(Exception _exception, string _server)
+        public void Save_Exception(Exception _exception, string _server)
         {
             var time_now = DateTime.Now;
             string time_now_string = time_now.ToString("dd.MM.yyyy hh:mm:ss");
             File.AppendAllText(@"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\catched_exceptions.txt",
                 Environment.NewLine + "<---------------->" + time_now_string +"<---------------->" + _server + Environment.NewLine + Convert.ToString(_exception));
-            System.Diagnostics.Process.Start(Application.ExecutablePath);
-            Exit(false);
         }
         public void Exit(bool _turn_off)
         {

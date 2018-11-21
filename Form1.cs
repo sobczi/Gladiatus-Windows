@@ -341,7 +341,13 @@ namespace Gladiatus_35
                     }
                 }
             }
-            catch (Exception _exception) { notifyIcon1.BalloonTipText = "RESTARTING BOT (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000); _BasicTasks.Restart(_exception, server_string); }
+            catch (Exception _exception)
+            {
+                notifyIcon1.BalloonTipText = "RESTARTING BOT (" + server_string + ")";
+                notifyIcon1.ShowBalloonTip(1000);
+                _BasicTasks.Save_Exception(_exception, server_string);
+                Run();
+            }
         }
         void Send_Notification(int notification_case)
         {

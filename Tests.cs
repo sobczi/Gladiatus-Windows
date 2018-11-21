@@ -10,15 +10,18 @@ namespace Gladiatus_35
     {
         private static ChromeDriver driver;
         private static Tasks _Tasks;
+        private static BasicTasks _BasicTasks;
 
         public Tests(ChromeDriver _driver)
         {
             driver = _driver;
             _Tasks = new Tasks(driver);
+            _BasicTasks = new BasicTasks(driver);
         }
 
         public void RunTests()
         {
+            throw new System.ArgumentException("hehe");
         }
         public void ReadingNames()
         {
