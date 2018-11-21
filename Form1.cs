@@ -117,7 +117,7 @@ namespace Gladiatus_35
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            if (!buyRingsAction) { TurnOff(); buyRingsAction = true; button1.Text = " BUYING RINGS.."; }
+            if (!buyRingsAction) { Start_Botting(); TurnOff(); buyRingsAction = true; button1.Text = " BUYING RINGS.."; }
             else { MessageBox.Show("WAIT UNTILL TASK ENDS.."); }
         }
         private void button2_Click(object sender, EventArgs e)
@@ -127,7 +127,7 @@ namespace Gladiatus_35
         }
         private void button3_Click(object sender, EventArgs e)
         {
-            if (!botAction) { botAction = true; startChrome = true; button3.Text = "BOTTING.."; }
+            if (!botAction) { Start_Botting(); botAction = true; }
             else { botAction = false; startChrome = false; button3.Text = "START BOTTING"; }
         }
         private void button4_Click(object sender, EventArgs e)
@@ -137,6 +137,7 @@ namespace Gladiatus_35
                 TurnOff();
                 moveGoldAction = true;
                 button4.Text = "PACKING GOLD..";
+                Start_Botting();
             }
             else
             {
@@ -145,7 +146,7 @@ namespace Gladiatus_35
         }
         private void button5_Click(object sender, EventArgs e)
         {
-            if (!watch_auctions) { TurnOff(); watch_auctions = true; button5.Text = "WATCHING AUCTIONS.."; }
+            if (!watch_auctions) { TurnOff(); watch_auctions = true; Start_Botting(); }
             else { MessageBox.Show("WAIT UNTILL TASK ENDS.."); }
         }
         private void button6_Click(object sender, EventArgs e)
@@ -154,6 +155,7 @@ namespace Gladiatus_35
             {
                 TurnOff();
                 sellItemsAction = true;
+                Start_Botting();
                 button6.Text = "SELLING ITEMS..";
             }
             else
@@ -172,6 +174,7 @@ namespace Gladiatus_35
             {
                 TurnOff();
                 takeGoldAction = true;
+                Start_Botting();
                 button10.Text = "TAKING GOLD..";
             }
             else
@@ -467,6 +470,10 @@ namespace Gladiatus_35
                 _Tasks = new Tasks(driver); _BasicTasks = new BasicTasks(driver);
                 _Tests = new Tests(driver); update_data = false;
             }
+        }
+        void Start_Botting()
+        {
+            startChrome = true; button3.Text = "BOTTING..";
         }
     }
 }
