@@ -1284,14 +1284,21 @@ namespace Gladiatus_35
                 }
                 if (!gotAtLeastOne) { categoryNumber++; goto start; }
                 #endregion
-                string[] temporary_lines = File.ReadAllLines(file_path);
-                List<string> save_to_file = new List<string>();
-                for (int i=0; i<collectionSelling.Count; i++)
+                if (File.Exists(file_path))
                 {
-                    if(!temporary_lines.Contains(collectionSelling.ElementAt(i)))
-                        save_to_file.Add(collectionSelling.ElementAt(i));
+                    string[] temporary_lines = File.ReadAllLines(file_path);
+                    List<string> save_to_file = new List<string>();
+                    for (int i = 0; i < collectionSelling.Count; i++)
+                    {
+                        if (!temporary_lines.Contains(collectionSelling.ElementAt(i)))
+                            save_to_file.Add(collectionSelling.ElementAt(i));
+                    }
+                    File.AppendAllLines(file_path, save_to_file);
                 }
-                File.AppendAllLines(file_path, save_to_file);
+                else
+                {
+                    File.AppendAllLines(file_path, collectionSelling);
+                }
                 #region Shop Choose
                 changeShop:
                 gotAtLeastOne = false;
