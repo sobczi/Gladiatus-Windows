@@ -382,13 +382,20 @@ namespace Gladiatus_35
                 string name_item_work = class_items[found_case];
                 string soulbound_work = soulbound_items[found_case];
                 string level_work = level_items[found_case];
+                string item_quality = quality[found_case];
                 bool by_name = false;
                 bool by_soulbound = false;
                 bool by_level = false;
+                bool by_quality = false;
                 bool bought = false;
-                if (name_item_work != "*") { by_name = true; }
-                if (soulbound_work != "*") { by_soulbound = true; }
-                if (level_work != "*") { by_level = true; }
+                if (name_item_work != "*")
+                    by_name = true;
+                if (soulbound_work != "*")
+                    by_soulbound = true;
+                if (level_work != "*")
+                    by_level = true;
+                if (item_quality != "*")
+                    by_quality = true;
                 for (int i = 2; i <= iterator; i++)
                 {
                     if (_BasicTasks.Search("//section[@id='market_table']//tr[position()='" + i + "']/td[@align='center']/input[@value='Kup']"))
@@ -399,13 +406,17 @@ namespace Gladiatus_35
                         string price_item_string = driver.FindElementByXPath
                             ("//section[@id='market_table']//tr[position()='" + i + "']/td[position()='3']").GetAttribute("textContent");
                         string level = element.GetAttribute("data-level");
+                        string quality_level = element.GetAttribute("data-quality");
+
                         int price_item = Convert.ToInt32(new String(price_item_string.Where(Char.IsDigit).ToArray()));
 
                         if (price_item_work == price_item)
                         {
                             if (by_name && name_item != name_item_work ||
                                 by_soulbound && soulbound != soulbound_work ||
-                                 by_level && level != level_work) { continue; }
+                                 by_level && level != level_work || by_quality && quality_level != item_quality)
+                                continue;
+
                             int gold_before = Gold_Level();
                             _BasicTasks.Click("//section[@id='market_table']//tr[position()='" + i + "']/td[@align='center']/input[@value='Kup']");
                             if (gold_before - Gold_Level() == price_item_work) { bought = true; }
@@ -438,6 +449,12 @@ namespace Gladiatus_35
                 {
                     path += "[@data-level='" + level_work + "']";
                     path2 += "[@data-level='" + level_work + "']";
+                }
+
+                if(by_quality)
+                {
+                    path += "[@data-quality='" + item_quality + "']";
+                    path2 += "[@data-quality='" + item_quality + "']";
                 }
 
                 bool successMarket = false;
@@ -497,20 +514,24 @@ namespace Gladiatus_35
         }
         public void Search_Pack()
         {
-            if (!Properties.Settings.Default.pakujChecked || !File.Exists(Environment.CurrentDirectory + @"\items.txt")) { return; }
+            string file_path = 
+                @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Items .txt files for Gladiatus_bot" + @"\items" + server_number + ".txt";
+            if (!Properties.Settings.Default.pakujChecked ||
+                !File.Exists(file_path))
+                return;
 
             bool found = false;
             IReadOnlyCollection<IWebElement> items;
 
-            int lineCount = File.ReadLines(Environment.CurrentDirectory + @"\items.txt").Count();
+            int lineCount = File.ReadLines(file_path).Count();
             if (lineCount == 0) { return; }
-            string[] lines = File.ReadAllLines(Environment.CurrentDirectory + @"\items.txt");
+            string[] lines = File.ReadAllLines(file_path);
             string[] class_items = new string[lines.Length];
             string[] soulbound_items = new string[lines.Length];
             string[] price_items = new string[lines.Length];
             string[] level_items = new string[lines.Length];
             string[] types = new string[lines.Length];
-            string[] qualities = new string[lines.Length];
+            string[] qualities_items = new string[lines.Length];
 
             int iterator = 0;
             for (int i = 0; i < lines.Length; i++)
@@ -522,34 +543,40 @@ namespace Gladiatus_35
                     soulbound_items[iterator] = separated_line[1];
                     price_items[iterator] = separated_line[2];
                     types[iterator] = separated_line[3];
-                    qualities[iterator] = separated_line[4];
+                    qualities_items[iterator] = separated_line[4];
                     level_items[iterator] = separated_line[5];
                     iterator++;
                 }
             }
 
             string type = types[0];
-            string quality = qualities[0];
+            string quality = qualities_items[0];
             bool types_good = true;
             bool quality_good = true;
             if (types.Contains("*")) { types_good = false; }
-            if (qualities.Contains("*")) { quality_good = false; }
+            if (qualities_items.Contains("*")) { quality_good = false; }
             if (types_good || quality_good)
             {
                 for (int i = 0; i < class_items.Length; i++)
                 {
-                    if (type != types[i]) { types_good = false; }
-                    if (quality != qualities[i]) { quality_good = false; }
+                    if (type != types[i])
+                        types_good = false;
+                    if (quality != qualities_items[i])
+                        quality_good = false;
                 }
             }
 
             bool first = false;
             bool second = false;
             bool third = false;
+            bool fourth = false;
+
             bool names = false;
             bool levels = false;
             bool soulbounds = false;
+            bool qualities = false;
             int found_case = 0;
+
             do
             {
                 found = false;
@@ -568,6 +595,7 @@ namespace Gladiatus_35
                         string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
                         string name_class = items.ElementAt(i).GetAttribute("class");
                         string level = items.ElementAt(i).GetAttribute("data-level");
+                        quality = items.ElementAt(i).GetAttribute("data-quality");
                         for (int j = 0; j < class_items.Length; j++)
                         {
                             first = false;
@@ -576,10 +604,14 @@ namespace Gladiatus_35
                             if (class_items[j] != "*") { names = true; } else { first = true; }
                             if (level_items[j] != "*") { levels = true; } else { second = true; }
                             if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
+                            if (qualities_items[j] != "*") { qualities = true; } else { fourth = true; }
+
                             if (names && name_class.Contains(class_items[j])) { first = true; }
                             if (levels && level_items[j] == level) { second = true; }
                             if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
-                            if (first && second && third) { found = true; found_case = j; break; }
+                            if(qualities && qualities_items[j] == quality) { fourth = true; }
+
+                            if (first && second && third && fourth) { found = true; found_case = j; break; }
                         }
                         if (found) { break; }
                     }
@@ -606,6 +638,11 @@ namespace Gladiatus_35
                 {
                     path1 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
                     path2 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
+                }
+                if(qualities)
+                {
+                    path1 += "[@data-quality='" + qualities_items[found_case] + "']";
+                    path2 += "[@data-quality='" + qualities_items[found_case] + "']";
                 }
                 _BasicTasks.MoveMoveElement(path1, "//input[@name='show-item-info']");
                 if (_BasicTasks.Search("//div[@class='ui-droppable grid-droparea image-grayed active']"))
@@ -638,11 +675,13 @@ namespace Gladiatus_35
             found = false;
             FreeBackpack();
             items = driver.FindElementsByXPath("//div[@id='inv']//div[contains(@class,'ui-draggable')]");
+
             for (int i = 0; i < items.Count; i++)
             {
                 string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
                 string name_class = items.ElementAt(i).GetAttribute("class");
                 string level = items.ElementAt(i).GetAttribute("data-level");
+                quality = items.ElementAt(i).GetAttribute("data-quality");
                 for (int j = 0; j < class_items.Length; j++)
                 {
                     first = false;
@@ -651,10 +690,14 @@ namespace Gladiatus_35
                     if (class_items[j] != "*") { names = true; } else { first = true; }
                     if (level_items[j] != "*") { levels = true; } else { second = true; }
                     if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
+                    if (qualities_items[j] != "*") { qualities = true; } else { fourth = true; }
+
                     if (names && class_items[j] == name_class) { first = true; }
                     if (levels && level_items[j] == level) { second = true; }
                     if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
-                    if (first && second && third) { found = true; found_case = j; break; }
+                    if (qualities && qualities_items[j] == quality) { fourth = true; }
+
+                    if (first && second && third && fourth) { found = true; found_case = j; break; }
                 }
                 if (found) { break; }
             }
@@ -683,10 +726,14 @@ namespace Gladiatus_35
                         if (class_items[j] != "*") { names = true; } else { first = true; }
                         if (level_items[j] != "*") { levels = true; } else { second = true; }
                         if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
+                        if (qualities_items[j] != "*") { qualities = true; } else { fourth = true; }
+
                         if (names && class_items[j] == name_class) { first = true; }
                         if (levels && level_items[j] == level) { second = true; }
                         if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
-                        if (first && second && third) { found = true; found_case = j; break; }
+                        if (qualities && qualities_items[j] == quality) { fourth = true; }
+
+                        if (first && second && third && fourth) { found = true; found_case = j; break; }
                     }
                     if (found) { break; }
                 }
@@ -707,6 +754,11 @@ namespace Gladiatus_35
                 {
                     path1 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
                     path2 += "[@data-soulbound-to='" + soulbound_items[found_case] + "']";
+                }
+                if (qualities)
+                {
+                    path1 += "[@data-quality='" + qualities_items[found_case] + "']";
+                    path2 += "[@data-quality='" + qualities_items[found_case] + "']";
                 }
                 _BasicTasks.MoveReleaseElement(path2, "//div[@id='market_sell']/div[@class='ui-droppable']");
                 _BasicTasks.SelectElement("//select[@name='dauer']", "24 h");
@@ -1070,6 +1122,7 @@ namespace Gladiatus_35
                 string file_path = @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Selling items\selling_items" + server_number + ".txt";
                 start:
 
+                bool gotAtLeastOne = false;
                 bool secondTabWarrior = false;
                 string variable = "";
                 IReadOnlyCollection<IWebElement> list;
@@ -1080,9 +1133,15 @@ namespace Gladiatus_35
 
                 if(File.Exists(file_path))
                 {
+                    _BasicTasks.Click("//a[@title='Podgląd']");
+                    if (!FreeBackpack())
+                        return;
                     string[] lines = File.ReadAllLines(file_path);
                     for(int i=0; i<lines.Length; i++)
-                        collectionSelling.Add(lines[i]);
+                    {
+                        if (_BasicTasks.Search("//div[@id='inv']//div[@data-hash='" + lines[i] + "']"))
+                            collectionSelling.Add(lines[i]);
+                    }
                 }
 
                 #region ChooseCategory
@@ -1245,8 +1304,6 @@ namespace Gladiatus_35
 
                 for (int i = 0; i < clickedTimes; i++)
                 { _BasicTasks.Click("//a[@class='paging_button paging_left_step']"); }
-
-                bool gotAtLeastOne = false;
 
                 if (collectionReady.Count == 0)
                 { categoryNumber++; goto start; }
