@@ -287,6 +287,7 @@ namespace Gladiatus_35
                             _Tasks.BuyFood();
                             _Tasks.Buy_Auction_House();
                             _Tasks.MovingFood();
+                            _Tasks.StoreItems();
                             Wait_For_Exit();
                         }
 

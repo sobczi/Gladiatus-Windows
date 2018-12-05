@@ -1663,11 +1663,11 @@ namespace Gladiatus_35
                         { _BasicTasks.ReleaseElement("//div[contains(@class,'ui-droppable')]"); }
                         else { continue; }
                     }
-                    bool changed = true;
+                    bool changed = false;
                     for (int i = 0; i < 5; i++)
                     {
-                        if (Gold_Level() == gold_before)
-                        { Thread.Sleep(1000); changed = false; }
+                        if (Gold_Level() != gold_before)
+                        { Thread.Sleep(1000); changed = true; }
                     }
                     if (!changed) { driver.Navigate().Refresh(); }
                 }
@@ -1807,6 +1807,15 @@ namespace Gladiatus_35
             }
             return false;
         }
+        public void StoreItems()
+        {
+            Arena();
+            _BasicTasks.Click("//a[contains(@class,'menuitem')][text() = 'Magazyn surowców']");
+            while (_BasicTasks.Search("//button[@id='store'][@disabled='']"))
+                _BasicTasks.Click("//input[@id='from-packages']");
+            _BasicTasks.Click("//button[@id='store'][text() = 'Jazda!']");
+        }
+
         #endregion
 
         #region PRIVATE

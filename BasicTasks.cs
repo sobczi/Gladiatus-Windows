@@ -22,6 +22,9 @@ namespace Gladiatus_35
         }
         public void Click(string path)
         {
+            Random rnd = new Random();
+            int number = rnd.Next(3, 3) * 1000;
+            Thread.Sleep(number);
             for (int i = 0; i < 2; i++)
             {
                 IWebElement element = driver.FindElementByXPath(path);
