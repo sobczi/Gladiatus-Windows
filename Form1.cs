@@ -10,6 +10,7 @@ namespace Gladiatus_35
     public partial class Form1 : Form
     {
         #region VARIABLES
+        public static bool hades;
         public static int expedition_points;
         public static int dungeon_points;
         public static bool british_land;
@@ -28,6 +29,7 @@ namespace Gladiatus_35
         public static bool takeGoldAction = false;
         public static bool hadesHardAction = false;
         public static bool buyRingsAction = false;
+        public static bool downloadPackages = false;
 
         public static string currently_running;
 
@@ -58,6 +60,7 @@ namespace Gladiatus_35
             startChrome = true;
             bot_running = false;
             british_land = false;
+            hades = false;
             currently_running = "Waiting..";
             int world_option = Properties.Settings.Default.worldOption;
             switch (world_option)
@@ -198,13 +201,14 @@ namespace Gladiatus_35
                 t.GetMethod("UpdateIcon", hidden).Invoke(ni, new object[] { true });
         }
         #endregion
-        void TurnOff()
+        public void TurnOff()
         {
             botAction = false;
             moveGoldAction = false;
             buyFoodAction = false;
             sellItemsAction = false;
             watch_auctions = false;
+            downloadPackages = false;
 
             button1.Text = "BUY RINGS";
             button3.Text = "START BOTTING";
@@ -212,6 +216,7 @@ namespace Gladiatus_35
             button5.Text = "WATCH AUCTIONS";
             button6.Text = "SELL ITEMS";
             button10.Text = "TAKE OUT GOLD";
+            button7.Text = "DOWNLOAD PACKAGES";
         }
         public void Run()
         {
@@ -256,7 +261,7 @@ namespace Gladiatus_35
                             {
                                 if (!botAction) { break; }
                                 Check_Updates();
-                                if (first_extract) { _Tasks.ExtractItems(); first_extract = false; }
+                                if (first_extract) { _Tasks.ExtractItems(); first_extract = false; _Tasks.Store_Components(); }
 
                                 expedition_points_private = expedition_points = _Tasks.ReturnInt("//span[@id='expeditionpoints_value_point']");
                                 dungeon_points_private = dungeon_points = _Tasks.ReturnInt("//span[@id='dungeonpoints_value_point']");
@@ -270,6 +275,9 @@ namespace Gladiatus_35
                                 _Tasks.Pack_Gold();
                                 _Tasks.Search_Pack();
 
+                                if (hades)
+                                    break;
+
                                 expedition_points = _Tasks.ReturnInt("//span[@id='expeditionpoints_value_point']");
                                 dungeon_points = _Tasks.ReturnInt("//span[@id='dungeonpoints_value_point']");
 
@@ -277,7 +285,6 @@ namespace Gladiatus_35
                                     expedition_points == 0 && british_land && !Properties.Settings.Default.farm_arenas ||
                                     dungeon_points == 0 && !Properties.Settings.Default.expeditionsChecked && british_land && !Properties.Settings.Default.farm_arenas)
                                 { if (!_Tasks.Take_Pater_Costume()) { break; } }
-
                             } while (dungeon_points > 0 || expedition_points > 0 || Properties.Settings.Default.farm_arenas);
 
                             if (!botAction) { break; }
@@ -285,9 +292,8 @@ namespace Gladiatus_35
                             _Tasks.SellItems(false);
                             _Tasks.Pack_Gold();
                             _Tasks.BuyFood();
-                            _Tasks.Buy_Auction_House();
+                            _Tasks.Buy_Auction_House2();
                             _Tasks.MovingFood();
-                            _Tasks.StoreItems();
                             Wait_For_Exit();
                         }
 
@@ -321,7 +327,7 @@ namespace Gladiatus_35
                         while (buyRingsAction)
                         {
                             Check_Updates();
-                            _Tasks.Buy_Auction_House();
+                            _Tasks.Buy_Auction_House2();
                             buyRingsAction = false;
                             TurnOff();
                             Send_Notification(3);
@@ -332,10 +338,20 @@ namespace Gladiatus_35
                             Check_Updates();
                             _Tasks.Waith_Auction_House();
                             watch_auctions = false;
+                            TurnOff();
                             Send_Notification(4);
                         }
 
-                        while (!botAction && !moveGoldAction && !sellItemsAction && !takeGoldAction && !buyRingsAction)
+                        while(downloadPackages)
+                        {
+                            Check_Updates();
+                            _Tasks.Download_Packages();
+                            downloadPackages = false;
+                            TurnOff();
+                            Send_Notification(5);
+                        }
+
+                        while (!botAction && !moveGoldAction && !sellItemsAction && !takeGoldAction && !buyRingsAction && !downloadPackages)
                         {
                             Check_Updates();
                             Thread.Sleep(1500);
@@ -369,7 +385,7 @@ namespace Gladiatus_35
                     notifyIcon1.BalloonTipText = "BUY RINGS: READY! (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000);
                     break;
                 case 5:
-                    notifyIcon1.BalloonTipText = "WATCHING AUCTION: READY! (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000);
+                    notifyIcon1.BalloonTipText = "DOWNLOADING PACKAGES: READY! (" + server_string + ")"; notifyIcon1.ShowBalloonTip(1000);
                     break;
                 default:
                     return;
@@ -427,14 +443,15 @@ namespace Gladiatus_35
                 bool found_process = false;
                 do
                 {
-                    Thread.Sleep(5000);
+                    Thread.Sleep(60000);
                     found_process = false;
                     Process[] proceses = Process.GetProcesses();
                     foreach (Process proces in proceses)
                     {
                         for (int i = 0; i < processes.Length; i++)
                         {
-                            if (proces.ProcessName == processes[i] && proces.ProcessName != Process.GetCurrentProcess().ProcessName) { found_process = true; break; }
+                            if (proces.ProcessName == processes[i] && proces.ProcessName != Process.GetCurrentProcess().ProcessName)
+                            { found_process = true; continue; }
                         }
                     }
                 } while (found_process && turn_off);
@@ -474,6 +491,12 @@ namespace Gladiatus_35
         void Start_Botting()
         {
             startChrome = true; button3.Text = "BOTTING..";
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            if (!downloadPackages) { Start_Botting(); TurnOff(); downloadPackages = true; button7.Text = "DOWNLOADING PACKAGES.."; }
+            else { MessageBox.Show("WAIT UNTILL TASK ENDS.."); }
         }
     }
 }

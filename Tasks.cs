@@ -6,6 +6,7 @@ using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Chrome;
+using System.Text.RegularExpressions;
 using System.IO;
 
 namespace Gladiatus_35
@@ -293,6 +294,11 @@ namespace Gladiatus_35
             Form1.currently_running = "Expedition..";
             if (Form1.expedition_points > 0 && Properties.Settings.Default.expeditionsChecked || error_packing)
             {
+                if (_BasicTasks.Search("//a[contains(@class,'menuitem')][text() = 'Opuść Hades']"))
+                {
+                    Form1.hades = true;
+                    return;
+                }
                 #region CheckForHealth
                 HealMe();
                 #endregion
@@ -346,12 +352,13 @@ namespace Gladiatus_35
                 string[] level_items = new string[lines.Length];
                 string[] types = new string[lines.Length];
                 string[] quality = new string[lines.Length];
+                string[] amount = new string[lines.Length];
 
                 int iterator = 0;
                 for (int i = 0; i < lines.Length; i++)
                 {
                     string[] separated_line = lines[i].Split(' ');
-                    if (separated_line.Length == 6)
+                    if (separated_line.Length == 8)
                     {
                         class_items[iterator] = separated_line[0];
                         soulbound_items[iterator] = separated_line[1];
@@ -359,7 +366,48 @@ namespace Gladiatus_35
                         types[iterator] = separated_line[3];
                         quality[iterator] = separated_line[4];
                         level_items[iterator] = separated_line[5];
+                        amount[iterator] = separated_line[6];
                         iterator++;
+                    }
+                }
+
+                bool changed = true;
+                while(changed)
+                {
+                    changed = false;
+                    for(int i=0; i<lines.Length - 1; i++)
+                    {
+                        if(Convert.ToInt32(price_items[i])<Convert.ToInt32(price_items[i+1]))
+                        {
+                            changed = true;
+                            string temporary = price_items[i];
+                            price_items[i] = price_items[i + 1];
+                            price_items[i + 1] = temporary;
+
+                            temporary = class_items[i];
+                            class_items[i] = class_items[i + 1];
+                            class_items[i + 1] = temporary;
+
+                            temporary = soulbound_items[i];
+                            soulbound_items[i] = soulbound_items[i + 1];
+                            soulbound_items[i + 1] = temporary;
+
+                            temporary = types[i];
+                            types[i] = types[i + 1];
+                            types[i + 1] = temporary;
+
+                            temporary = quality[i];
+                            quality[i] = quality[i + 1];
+                            quality[i + 1] = temporary;
+
+                            temporary = level_items[i];
+                            level_items[i] = level_items[i + 1];
+                            level_items[i + 1] = temporary;
+
+                            temporary = amount[i];
+                            amount[i] = amount[i + 1];
+                            amount[i + 1] = temporary;
+                        }
                     }
                 }
 
@@ -383,18 +431,22 @@ namespace Gladiatus_35
                 string soulbound_work = soulbound_items[found_case];
                 string level_work = level_items[found_case];
                 string item_quality = quality[found_case];
+                string amount_work = amount[found_case];
                 bool by_name = false;
+                bool by_amount = false;
                 bool by_soulbound = false;
                 bool by_level = false;
                 bool by_quality = false;
                 bool bought = false;
-                if (name_item_work != "*")
+                if (amount_work != "null")
+                    by_amount = true;
+                if (name_item_work != "null")
                     by_name = true;
-                if (soulbound_work != "*")
+                if (soulbound_work != "null")
                     by_soulbound = true;
-                if (level_work != "*")
+                if (level_work != "null")
                     by_level = true;
-                if (item_quality != "*")
+                if (item_quality != "null")
                     by_quality = true;
                 for (int i = 2; i <= iterator; i++)
                 {
@@ -407,6 +459,7 @@ namespace Gladiatus_35
                             ("//section[@id='market_table']//tr[position()='" + i + "']/td[position()='3']").GetAttribute("textContent");
                         string level = element.GetAttribute("data-level");
                         string quality_level = element.GetAttribute("data-quality");
+                        string amount_loop = element.GetAttribute("data-amount");
 
                         int price_item = Convert.ToInt32(new String(price_item_string.Where(Char.IsDigit).ToArray()));
 
@@ -414,7 +467,7 @@ namespace Gladiatus_35
                         {
                             if (by_name && name_item != name_item_work ||
                                 by_soulbound && soulbound != soulbound_work ||
-                                 by_level && level != level_work || by_quality && quality_level != item_quality)
+                                 by_level && level != level_work || by_quality && quality_level != item_quality || by_amount && amount_loop != amount_work)
                                 continue;
 
                             int gold_before = Gold_Level();
@@ -435,8 +488,8 @@ namespace Gladiatus_35
 
                 if (by_name)
                 {
-                    path += "[contains(@class,'" + name_item_work + "')]";
-                    path2 += "[contains(@class,'" + name_item_work + "')]";
+                    path = path + "[contains(concat(' ', normalize-space(@class), ' '), ' " + class_items[found_case] + " ')]";
+                    path2 = path2 + "[contains(concat(' ', normalize-space(@class), ' '), ' " + class_items[found_case] + " ')]";
                 }
 
                 if (by_soulbound)
@@ -455,6 +508,12 @@ namespace Gladiatus_35
                 {
                     path += "[@data-quality='" + item_quality + "']";
                     path2 += "[@data-quality='" + item_quality + "']";
+                }
+
+                if(by_amount)
+                {
+                    path += "[@data-amount='" + amount_work + "']";
+                    path2 += "[@data-amount='" + amount_work + "']";
                 }
 
                 bool successMarket = false;
@@ -532,12 +591,14 @@ namespace Gladiatus_35
             string[] level_items = new string[lines.Length];
             string[] types = new string[lines.Length];
             string[] qualities_items = new string[lines.Length];
+            string[] amount_work = new string[lines.Length];
+            string[] already_sold = new string[lines.Length];
 
             int iterator = 0;
             for (int i = 0; i < lines.Length; i++)
             {
                 string[] separated_line = lines[i].Split(' ');
-                if (separated_line.Length == 6)
+                if (separated_line.Length == 7)
                 {
                     class_items[iterator] = separated_line[0];
                     soulbound_items[iterator] = separated_line[1];
@@ -545,6 +606,8 @@ namespace Gladiatus_35
                     types[iterator] = separated_line[3];
                     qualities_items[iterator] = separated_line[4];
                     level_items[iterator] = separated_line[5];
+                    amount_work[iterator] = separated_line[6];
+                    already_sold[iterator] = separated_line[7];
                     iterator++;
                 }
             }
@@ -553,8 +616,8 @@ namespace Gladiatus_35
             string quality = qualities_items[0];
             bool types_good = true;
             bool quality_good = true;
-            if (types.Contains("*")) { types_good = false; }
-            if (qualities_items.Contains("*")) { quality_good = false; }
+            if (types.Contains("null")) { types_good = false; }
+            if (qualities_items.Contains("null")) { quality_good = false; }
             if (types_good || quality_good)
             {
                 for (int i = 0; i < class_items.Length; i++)
@@ -570,11 +633,13 @@ namespace Gladiatus_35
             bool second = false;
             bool third = false;
             bool fourth = false;
+            bool fifth = false;
 
             bool names = false;
             bool levels = false;
             bool soulbounds = false;
             bool qualities = false;
+            bool by_amount = false;
             int found_case = 0;
 
             do
@@ -596,22 +661,28 @@ namespace Gladiatus_35
                         string name_class = items.ElementAt(i).GetAttribute("class");
                         string level = items.ElementAt(i).GetAttribute("data-level");
                         quality = items.ElementAt(i).GetAttribute("data-quality");
+                        string amount_temp = items.ElementAt(i).GetAttribute("data-amount");
                         for (int j = 0; j < class_items.Length; j++)
                         {
                             first = false;
                             second = false;
                             third = false;
-                            if (class_items[j] != "*") { names = true; } else { first = true; }
-                            if (level_items[j] != "*") { levels = true; } else { second = true; }
-                            if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
-                            if (qualities_items[j] != "*") { qualities = true; } else { fourth = true; }
+                            fourth = false;
+                            fifth = false;
+                            if (class_items[j] != "null") { names = true; } else { first = true; }
+                            if (level_items[j] != "null") { levels = true; } else { second = true; }
+                            if (soulbound_items[j] != "null") { soulbounds = true; } else { third = true; }
+                            if (qualities_items[j] != "null") { qualities = true; } else { fourth = true; }
+                            if(amount_work[j] != "null") { by_amount = true; } else { fifth = true; }
 
-                            if (names && name_class.Contains(class_items[j])) { first = true; }
+                            var regex = new Regex(@"\s*\b" + class_items[j] + @"\s*\b");
+                            if (names && regex.IsMatch(name_class)) { first = true; }
                             if (levels && level_items[j] == level) { second = true; }
                             if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
                             if(qualities && qualities_items[j] == quality) { fourth = true; }
+                            if(by_amount && amount_work[j] == amount_temp) { fifth = true; }
 
-                            if (first && second && third && fourth) { found = true; found_case = j; break; }
+                            if (first && second && third && fourth && fifth) { found = true; found_case = j; break; }
                         }
                         if (found) { break; }
                     }
@@ -626,8 +697,8 @@ namespace Gladiatus_35
                 string path2 = "//div[@id='inv']//div";
                 if (names)
                 {
-                    path1 += "[contains(@class,'" + class_items[found_case] + "')]";
-                    path2 += "[contains(@class,'" + class_items[found_case] + "')]";
+                    path1 = path1 + "[contains(concat(' ', normalize-space(@class), ' '), ' " + class_items[found_case] + " ')]";
+                    path2 = path2 + "[contains(concat(' ', normalize-space(@class), ' '), ' " + class_items[found_case] + " ')]";
                 }
                 if (levels)
                 {
@@ -644,6 +715,13 @@ namespace Gladiatus_35
                     path1 += "[@data-quality='" + qualities_items[found_case] + "']";
                     path2 += "[@data-quality='" + qualities_items[found_case] + "']";
                 }
+
+                if (by_amount)
+                {
+                    path1 += "[@data-amount='" + amount_work[found_case] + "']";
+                    path2 += "[@data-amount='" + amount_work[found_case] + "']";
+                }
+
                 _BasicTasks.MoveMoveElement(path1, "//input[@name='show-item-info']");
                 if (_BasicTasks.Search("//div[@class='ui-droppable grid-droparea image-grayed active']"))
                 {   
@@ -671,7 +749,7 @@ namespace Gladiatus_35
                 { try { error_packing = true; Expedition(); goto sell; } catch { } }
                 else { error_packing = false; }
             } while (found);
-
+            
             found = false;
             FreeBackpack();
             items = driver.FindElementsByXPath("//div[@id='inv']//div[contains(@class,'ui-draggable')]");
@@ -682,22 +760,26 @@ namespace Gladiatus_35
                 string name_class = items.ElementAt(i).GetAttribute("class");
                 string level = items.ElementAt(i).GetAttribute("data-level");
                 quality = items.ElementAt(i).GetAttribute("data-quality");
+                string amount_temp = items.ElementAt(i).GetAttribute("data-amount");
                 for (int j = 0; j < class_items.Length; j++)
                 {
                     first = false;
                     second = false;
                     third = false;
-                    if (class_items[j] != "*") { names = true; } else { first = true; }
-                    if (level_items[j] != "*") { levels = true; } else { second = true; }
-                    if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
-                    if (qualities_items[j] != "*") { qualities = true; } else { fourth = true; }
+                    if (class_items[j] != "null") { names = true; } else { first = true; }
+                    if (level_items[j] != "null") { levels = true; } else { second = true; }
+                    if (soulbound_items[j] != "null") { soulbounds = true; } else { third = true; }
+                    if (qualities_items[j] != "null") { qualities = true; } else { fourth = true; }
+                    if (amount_work[j] != "null") { by_amount = true; } else { fifth = true; }
 
-                    if (names && class_items[j] == name_class) { first = true; }
+                    var regex = new Regex(@"\s*\b" + class_items[j] + @"\s*\b");
+                    if (names && regex.IsMatch(name_class)) { first = true; }
                     if (levels && level_items[j] == level) { second = true; }
                     if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
                     if (qualities && qualities_items[j] == quality) { fourth = true; }
+                    if (by_amount && amount_work[j] == amount_temp) { fifth = true; }
 
-                    if (first && second && third && fourth) { found = true; found_case = j; break; }
+                    if (first && second && third && fourth && fifth) { found = true; found_case = j; break; }
                 }
                 if (found) { break; }
             }
@@ -718,22 +800,29 @@ namespace Gladiatus_35
                     string soul_bound = items.ElementAt(i).GetAttribute("data-soulbound-to");
                     string name_class = items.ElementAt(i).GetAttribute("class");
                     string level = items.ElementAt(i).GetAttribute("data-level");
+                    quality = items.ElementAt(i).GetAttribute("data-quality");
+                    string amount_temp = items.ElementAt(i).GetAttribute("data-amount");
                     for (int j = 0; j < class_items.Length; j++)
                     {
                         first = false;
                         second = false;
                         third = false;
-                        if (class_items[j] != "*") { names = true; } else { first = true; }
-                        if (level_items[j] != "*") { levels = true; } else { second = true; }
-                        if (soulbound_items[j] != "*") { soulbounds = true; } else { third = true; }
-                        if (qualities_items[j] != "*") { qualities = true; } else { fourth = true; }
+                        fourth = false;
+                        fifth = false;
+                        if (class_items[j] != "null") { names = true; } else { first = true; }
+                        if (level_items[j] != "null") { levels = true; } else { second = true; }
+                        if (soulbound_items[j] != "null") { soulbounds = true; } else { third = true; }
+                        if (qualities_items[j] != "null") { qualities = true; } else { fourth = true; }
+                        if (amount_work[j] != "null") { by_amount = true; } else { fifth = true; }
 
-                        if (names && class_items[j] == name_class) { first = true; }
+                        var regex = new Regex(@"\s*\b" + class_items[j] + @"\s*\b");
+                        if (names && regex.IsMatch(name_class)) { first = true; }
                         if (levels && level_items[j] == level) { second = true; }
                         if (soulbounds && soulbound_items[j] == soul_bound) { third = true; }
                         if (qualities && qualities_items[j] == quality) { fourth = true; }
+                        if (by_amount && amount_work[j] == amount_temp) { fifth = true; }
 
-                        if (first && second && third && fourth) { found = true; found_case = j; break; }
+                        if (first && second && third && fourth && fifth) { found = true; found_case = j; break; }
                     }
                     if (found) { break; }
                 }
@@ -742,8 +831,8 @@ namespace Gladiatus_35
                 string path2 = "//div[@id='inv']//div";
                 if (names)
                 {
-                    path1 += "[contains(@class='" + class_items[found_case] + "')]";
-                    path2 += "[contains(@class='" + class_items[found_case] + "')]";
+                    path1 = path1 + "[contains(concat(' ', normalize-space(@class), ' '), ' " + class_items[found_case] + " ')]";
+                    path2 = path2 + "[contains(concat(' ', normalize-space(@class), ' '), ' " + class_items[found_case] + " ')]";
                 }
                 if (levels)
                 {
@@ -760,7 +849,33 @@ namespace Gladiatus_35
                     path1 += "[@data-quality='" + qualities_items[found_case] + "']";
                     path2 += "[@data-quality='" + qualities_items[found_case] + "']";
                 }
-                _BasicTasks.MoveReleaseElement(path2, "//div[@id='market_sell']/div[@class='ui-droppable']");
+
+                if (by_amount)
+                {
+                    path1 += "[@data-amount='" + amount_work[found_case] + "']";
+                    path2 += "[@data-amount='" + amount_work[found_case] + "']";
+                }
+
+                int already_sold_current = Convert.ToInt32(already_sold[found_case]);
+                bool already_sold_needed = false;
+                if (already_sold_current == 1)
+                    already_sold_needed = true;
+
+                _BasicTasks.MoveTo(path2);
+                if(_BasicTasks.Search("//p[contains(text(),'Wskazówka')]") != already_sold_needed)
+                {
+                    Malefica_Seller();
+                    _BasicTasks.MoveMoveElement(path2, "//a[@class='awesome-tabs current']");
+                    _BasicTasks.ReleaseElement("//div[@id='shop']//div[@class='ui-droppable grid-droparea image-grayed active']");
+                    Search_Pack();
+                    return;
+                }
+                else
+                {
+                    _BasicTasks.ReleaseElement("//div[@id='market_sell']/div[@class='ui-droppable']");
+                }
+
+                //_BasicTasks.MoveReleaseElement(path2, "//div[@id='market_sell']/div[@class='ui-droppable']");
                 _BasicTasks.SelectElement("//select[@name='dauer']", "24 h");
                 var cena_2 = _BasicTasks.GetElement("//input[@name='preis']");
                 cena_2.SendKeys(OpenQA.Selenium.Keys.Control + "a");
@@ -938,7 +1053,7 @@ namespace Gladiatus_35
                             changed = false;
                             if (i_inteligence[i] >= boosters_per_type) { i_inteligence[i] = 0; changed = true; }
                             if (!changed) { i_inteligence[i] -= boosters_per_type; i_inteligence[i] *= -1; need_boosters = true; }
-
+                            
                             if (i != 3)
                             {
                                 changed = false;
@@ -954,78 +1069,6 @@ namespace Gladiatus_35
                     default:
                         return;
                 }
-
-                //List<string> at_first = new List<string>();
-                //string smallest_value = "";
-                //bool added;
-                //do
-                //{
-                //    added = false;
-                //    for(int i=0; i<3; i++)
-                //    {
-                //        int smallest_integer = 1;
-                //        if (i_strength[i] != 0 && i_strength[i] >= smallest_integer)
-                //        {
-                //            smallest_integer = i_strength[i]; added = true;
-                //            smallest_value = "";
-                //            smallest_value += "1" + Convert.ToString(i);
-                //            i_strength[i] = 0;
-                //        }
-
-                //        if (i_mastery[i] != 0 && i_mastery[i] >= smallest_integer)
-                //        {
-                //            smallest_integer = i_mastery[i]; added = true;
-                //            smallest_value = "";
-                //            smallest_value += "2" + Convert.ToString(i);
-                //            i_mastery[i] = 0;
-                //        }
-
-                //        if (i_skill[i] != 0 && i_skill[i] >= smallest_integer)
-                //        {
-                //            smallest_integer = i_skill[i]; added = true;
-                //            smallest_value = "";
-                //            smallest_value += "2" + Convert.ToString(i);
-                //            i_skill[i] = 0;
-                //        }
-
-                //        if (i_physic[i] != 0 && i_physic[i] >= smallest_integer)
-                //        {
-                //            smallest_integer = i_physic[i]; added = true;
-                //            smallest_value = "";
-                //            smallest_value += "2" + Convert.ToString(i);
-                //            i_physic[i] = 0;
-                //        }
-
-                //        if (i_charisma[i] != 0 && i_charisma[i] >= smallest_integer)
-                //        {
-                //            smallest_integer = i_charisma[i]; added = true;
-                //            smallest_value = "";
-                //            smallest_value += "2" + Convert.ToString(i);
-                //            i_charisma[i] = 0;
-                //        }
-
-                //        if (i_inteligence[i] != 0 && i_inteligence[i] >= smallest_integer)
-                //        {
-                //            smallest_integer = i_inteligence[i]; added = true;
-                //            smallest_value = "";
-                //            smallest_value += "2" + Convert.ToString(i);
-                //            i_inteligence[i] = 0;
-                //        }
-
-                //        if(i != 3)
-                //        {
-                //            if (i_health[i] != 0 && i_health[i] >= smallest_integer)
-                //            {
-                //                smallest_integer = i_health[i]; added = true;
-                //                smallest_value = "";
-                //                smallest_value += "2" + Convert.ToString(i);
-                //                i_health[i] = 0;
-                //            }
-                //        }
-                //    }
-                //    if (added)
-                //        at_first.Add(smallest_value);
-                //} while (added);
 
                 _BasicTasks.Click("//input[@value='Filtr']");
                 IReadOnlyCollection<IWebElement> list = driver.FindElementsByXPath("//div[@id='auction_table']//form[@method='post']");
@@ -1109,6 +1152,247 @@ namespace Gladiatus_35
                 }
             }
             Thread.Sleep(2000);
+        }
+        public void Buy_Auction_House2()
+        {
+            Form1.currently_running = "Buying from Auction House..";
+            if (Properties.Settings.Default.buyRings || Properties.Settings.Default.buyAmulets || Properties.Settings.Default.buyBoosters || Form1.buyRingsAction)
+            {
+                if(Properties.Settings.Default.buyBoosters || Form1.buyRingsAction)
+                {
+                    int[] i_strength = new int[4];
+                    string[] strength = new string[4];
+                    strength[0] = "item-i-11-4 ui-draggable ui-droppable ui-draggable-handle";
+                    strength[1] = "item-i-11-3 ui-draggable ui-droppable ui-draggable-handle";
+                    strength[2] = "item-i-11-2 ui-draggable ui-droppable ui-draggable-handle";
+                    strength[3] = "item-i-11-1 ui-draggable ui-droppable ui-draggable-handle";
+
+                    int[] i_mastery = new int[4];
+                    string[] mastery = new string[4];
+                    mastery[0] = "item-i-11-8 ui-draggable ui-droppable ui-draggable-handle";
+                    mastery[1] = "item-i-11-7 ui-draggable ui-droppable ui-draggable-handle";
+                    mastery[2] = "item-i-11-6 ui-draggable ui-droppable ui-draggable-handle";
+                    mastery[3] = "item-i-11-5 ui-draggable ui-droppable ui-draggable-handle";
+
+                    int[] i_skill = new int[4];
+                    string[] skill = new string[4];
+                    skill[0] = "item-i-11-12 ui-draggable ui-droppable ui-draggable-handle";
+                    skill[1] = "item-i-11-11 ui-draggable ui-droppable ui-draggable-handle";
+                    skill[2] = "item-i-11-10 ui-draggable ui-droppable ui-draggable-handle";
+                    skill[3] = "item-i-11-9 ui-draggable ui-droppable ui-draggable-handle";
+
+                    int[] i_physic = new int[4];
+                    string[] physic = new string[4];
+                    physic[0] = "item-i-11-16 ui-draggable ui-droppable ui-draggable-handle";
+                    physic[1] = "item-i-11-15 ui-draggable ui-droppable ui-draggable-handle";
+                    physic[2] = "item-i-11-14 ui-draggable ui-droppable ui-draggable-handle";
+                    physic[3] = "item-i-11-13 ui-draggable ui-droppable ui-draggable-handle";
+
+                    int[] i_charisma = new int[4];
+                    string[] charisma = new string[4];
+                    charisma[0] = "item-i-11-20 ui-draggable ui-droppable ui-draggable-handle";
+                    charisma[1] = "item-i-11-19 ui-draggable ui-droppable ui-draggable-handle";
+                    charisma[2] = "item-i-11-18 ui-draggable ui-droppable ui-draggable-handle";
+                    charisma[3] = "item-i-11-17 ui-draggable ui-droppable ui-draggable-handle";
+
+                    int[] i_inteligence = new int[4];
+                    string[] inteligence = new string[4];
+                    inteligence[0] = "item-i-11-27 ui-draggable ui-droppable ui-draggable-handle";
+                    inteligence[1] = "item-i-11-26 ui-draggable ui-droppable ui-draggable-handle";
+                    inteligence[2] = "item-i-11-25 ui-draggable ui-droppable ui-draggable-handle";
+                    inteligence[3] = "item-i-11-24 ui-draggable ui-droppable ui-draggable-handle";
+
+                    int[] i_health = new int[3];
+                    string[] health = new string[3];
+                    health[0] = "item-i-11-23 ui-draggable ui-droppable ui-draggable-handle";
+                    health[1] = "item-i-11-22 ui-draggable ui-droppable ui-draggable-handle";
+                    health[2] = "item-i-11-21 ui-draggable ui-droppable ui-draggable-handle";
+                    string[] auctionForms;
+                    Packages();
+                    if (_BasicTasks.Search("//section[@style='display: none;']")) { _BasicTasks.Click("//h2[@class='section-header'][contains(text(), 'Opcje')]"); }
+                    _BasicTasks.SelectElement("//select[@name='f']", "Przyspieszacze");
+                    _BasicTasks.Click("//input[@value='Filtr']");
+                    bool first_loop = true;
+                    do
+                    {
+                        if (!first_loop)
+                            _BasicTasks.Click("//a[@class='paging_button paging_right_step']");
+
+                        for (int i = 0; i <= 3; i++)
+                        {
+                            i_strength[i] += driver.FindElementsByXPath("//div[@class='" + strength[i] + "']").Count;
+                            i_mastery[i] += driver.FindElementsByXPath("//div[@class='" + mastery[i] + "']").Count;
+                            i_skill[i] += driver.FindElementsByXPath("//div[@class='" + skill[i] + "']").Count;
+                            i_physic[i] += driver.FindElementsByXPath("//div[@class='" + physic[i] + "']").Count;
+                            i_charisma[i] += driver.FindElementsByXPath("//div[@class='" + charisma[i] + "']").Count;
+                            i_inteligence[i] += driver.FindElementsByXPath("//div[@class='" + inteligence[i] + "']").Count;
+                            if (i != 3)
+                                i_health[i] += driver.FindElementsByXPath("//div[@class='" + health[i] + "']").Count;
+                        }
+
+                        first_loop = false;
+                    } while (_BasicTasks.Search("//a[@class='paging_button paging_right_step']"));
+
+                    bool need_boosters = false;
+                    bool changed = false;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        changed = false;
+                        if (i_strength[i] >= boosters_per_type) { i_strength[i] = 0; changed = true; }
+                        if (!changed) { i_strength[i] -= boosters_per_type; i_strength[i] *= -1; need_boosters = true; }
+
+                        changed = false;
+                        if (i_mastery[i] >= boosters_per_type) { i_mastery[i] = 0; changed = true; }
+                        if (!changed) { i_mastery[i] -= boosters_per_type; i_mastery[i] *= -1; need_boosters = true; }
+
+                        changed = false;
+                        if (i_skill[i] >= boosters_per_type) { i_skill[i] = 0; changed = true; }
+                        if (!changed) { i_skill[i] -= boosters_per_type; i_skill[i] *= -1; need_boosters = true; }
+
+                        changed = false;
+                        if (i_physic[i] >= boosters_per_type) { i_physic[i] = 0; changed = true; }
+                        if (!changed) { i_physic[i] -= boosters_per_type; i_physic[i] *= -1; need_boosters = true; }
+
+                        changed = false;
+                        if (i_charisma[i] >= boosters_per_type) { i_charisma[i] = 0; changed = true; }
+                        if (!changed) { i_charisma[i] -= boosters_per_type; i_charisma[i] *= -1; need_boosters = true; }
+
+                        changed = false;
+                        if (i_inteligence[i] >= boosters_per_type) { i_inteligence[i] = 0; changed = true; }
+                        if (!changed) { i_inteligence[i] -= boosters_per_type; i_inteligence[i] *= -1; need_boosters = true; }
+
+                        if (i != 3)
+                        {
+                            changed = false;
+                            if (i_health[i] >= boosters_per_type) { i_health[i] = 0; changed = true; }
+                            if (!changed) { i_health[i] -= boosters_per_type; i_health[i] *= -1; need_boosters = true; }
+                        }
+                    }
+                    if (!need_boosters) { goto exit_boosters; }
+                    AuctionHouse();
+                    _BasicTasks.SelectElement("//select[@name='itemType']", "Przyspieszacze");
+                    _BasicTasks.Click("//input[@value='Filtr']");
+                    IReadOnlyCollection<IWebElement> list = driver.FindElementsByXPath("//div[@id='auction_table']//form[@method='post']");
+                    auctionForms = new string[list.Count];
+                    for (int i = 0; i < list.Count; i++)
+                        auctionForms[i] = Convert.ToString(list.ElementAt(i).GetAttribute("id"));
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        string helper_string = "//div[@id='auction_table']//form[@id='" + auctionForms[i] + "']";
+                        for (int j = 0; j < 3; j++)
+                        {
+                            string no_offers = driver.FindElementByXPath(helper_string + "//div[@class='auction_bid_div']/div").GetAttribute("textContent");
+                            no_offers = no_offers.Trim();
+                            if (_BasicTasks.Search(helper_string + "//div[contains(@class,'" + strength[j] + "')]") && i_strength[j] != 0 && no_offers == "Brak ofert")
+                            { _BasicTasks.Click(helper_string + "//input[@value='Licytuj']"); i_strength[j]--; }
+
+                            if (_BasicTasks.Search(helper_string + "//div[contains(@class,'" + mastery[j] + "')]") && i_mastery[j] != 0 && no_offers == "Brak ofert")
+                            { _BasicTasks.Click(helper_string + "//input[@value='Licytuj']"); i_mastery[j]--; }
+
+                            if (_BasicTasks.Search(helper_string + "//div[contains(@class,'" + skill[j] + "')]") && i_skill[j] != 0 && no_offers == "Brak ofert")
+                            { _BasicTasks.Click(helper_string + "//input[@value='Licytuj']"); i_skill[j]--; }
+
+                            if (_BasicTasks.Search(helper_string + "//div[contains(@class,'" + physic[j] + "')]") && i_physic[j] != 0 && no_offers == "Brak ofert")
+                            { _BasicTasks.Click(helper_string + "//input[@value='Licytuj']"); i_physic[j]--; }
+
+                            if (_BasicTasks.Search(helper_string + "//div[contains(@class,'" + charisma[j] + "')]") && i_charisma[j] != 0 && no_offers == "Brak ofert")
+                            { _BasicTasks.Click(helper_string + "//input[@value='Licytuj']"); i_charisma[j]--; }
+
+                            if (_BasicTasks.Search(helper_string + "//div[contains(@class,'" + inteligence[j] + "')]") && i_inteligence[j] != 0 && no_offers == "Brak ofert")
+                            { _BasicTasks.Click(helper_string + "//input[@value='Licytuj']"); i_inteligence[j]--; }
+
+                            if (i != 3)
+                                if (_BasicTasks.Search(helper_string + "//div[contains(@class,'" + health[j] + "')]") && i_health[j] != 0 && no_offers == "Brak ofert")
+                                { _BasicTasks.Click(helper_string + "//input[@value='Licytuj']"); i_health[j]--; }
+
+                            if (_BasicTasks.Search("//div[@class='message fail']"))
+                                break;
+                        }
+                    }
+                    goto exit_boosters;
+                }
+                exit_boosters:
+
+                if(Properties.Settings.Default.buyRings || Form1.buyRingsAction)
+                {
+                    string[] auctionForms;
+                    AuctionHouse();
+                    _BasicTasks.SelectElement("//select[@name='itemType']", "Pierścienie");
+                    _BasicTasks.Click("//input[@value='Filtr']");
+                    IReadOnlyCollection<IWebElement> list = driver.FindElementsByXPath("//div[@id='auction_table']//form[@method='post']");
+                    auctionForms = new string[list.Count];
+
+                    for (int i = 0; i < list.Count; i++)
+                        auctionForms[i] = Convert.ToString(list.ElementAt(i).GetAttribute("id"));
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        string helperString = "//div[@id='auction_table']//form[@id='" + auctionForms[i] + "']";
+                        string startPriceString = _BasicTasks.GetElement(helperString + "//input[@name='bid_amount']").GetAttribute("value");
+                        int startPrice = Convert.ToInt32(new String(startPriceString.Where(char.IsDigit).ToArray()));
+
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", driver.FindElementByXPath(helperString + "//div[@data-price-gold]"));
+                        _BasicTasks.MoveTo(helperString + "//div[@data-price-gold]");
+                        string valueString = _BasicTasks.GetElement("//p[@style='color:#DDDDDD']").GetAttribute("textContent");
+                        int value = Convert.ToInt32(new String(valueString.Where(Char.IsDigit).ToArray()));
+
+                        int helper = startPrice - value;
+
+                        if (helper < 0)
+                            helper *= -1;
+
+
+                        string noOffers = driver.FindElementByXPath(helperString + "//div[@class='auction_bid_div']/div").GetAttribute("textContent");
+                        noOffers = noOffers.Trim();
+
+                        if (helper <= difference_price && noOffers == "Brak ofert")
+                            _BasicTasks.Click(helperString + "//input[@value='Licytuj']");
+
+                        if (_BasicTasks.Search("//div[@class='message fail']"))
+                            break;
+                    }
+                    goto exit_rings;
+                }
+                exit_rings:
+
+                if(Properties.Settings.Default.buyAmulets || Form1.buyRingsAction)
+                {
+                    string[] auctionForms;
+                    AuctionHouse();
+                    _BasicTasks.SelectElement("//select[@name='itemType']", "Amulety");
+                    _BasicTasks.Click("//input[@value='Filtr']");
+                    IReadOnlyCollection<IWebElement> list = driver.FindElementsByXPath("//div[@id='auction_table']//form[@method='post']");
+                    auctionForms = new string[list.Count];
+
+                    for (int i = 0; i < list.Count; i++)
+                        auctionForms[i] = Convert.ToString(list.ElementAt(i).GetAttribute("id"));
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        string helperString = "//div[@id='auction_table']//form[@id='" + auctionForms[i] + "']";
+                        string startPriceString = _BasicTasks.GetElement(helperString + "//input[@name='bid_amount']").GetAttribute("value");
+                        int startPrice = Convert.ToInt32(new String(startPriceString.Where(char.IsDigit).ToArray()));
+
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", driver.FindElementByXPath(helperString + "//div[@data-price-gold]"));
+                        _BasicTasks.MoveTo(helperString + "//div[@data-price-gold]");
+                        string valueString = _BasicTasks.GetElement("//p[@style='color:#DDDDDD']").GetAttribute("textContent");
+                        int value = Convert.ToInt32(new String(valueString.Where(Char.IsDigit).ToArray()));
+
+                        int helper = startPrice - value;
+
+                        if (helper < 0)
+                            helper *= -1;
+
+
+                        string noOffers = driver.FindElementByXPath(helperString + "//div[@class='auction_bid_div']/div").GetAttribute("textContent");
+                        noOffers = noOffers.Trim();
+
+                        if (helper <= difference_price && noOffers == "Brak ofert")
+                            _BasicTasks.Click(helperString + "//input[@value='Licytuj']");
+
+                        if (_BasicTasks.Search("//div[@class='message fail']"))
+                            break;
+                    }
+                }
+            }
         }
         public void SellItems(bool clickSell)
         {
@@ -1209,6 +1493,8 @@ namespace Gladiatus_35
                 }
                 else
                 {
+                    if (Gold_Level() < Convert.ToInt32(Properties.Settings.Default.gold_level))
+                        return;
                     switch (categoryNumber)
                     {
                         case 1:
@@ -1724,8 +2010,10 @@ namespace Gladiatus_35
 
             int eventPoints = 0;
             _BasicTasks.Click("//div[@id='cooldown_bar_expedition']/a[@class='cooldown_bar_link']");
-            if (first) { _BasicTasks.Click("//a[contains(@class,'menuitem glow eyecatcher')]"); }
-            else { _BasicTasks.Click("//a[contains(@class,'menuitem active glow eyecatcher')]"); }
+            if (first)
+            { _BasicTasks.Click("//div[@id='submenu2']/a[contains(@class,'menuitem glow eyecatcher')]"); }
+            else
+            { _BasicTasks.Click("//a[contains(@class,'menuitem active glow eyecatcher')]"); }
 
             if (!_BasicTasks.Search("//div[@class='section-header']/p[2]")) { dungeon_event_ready = true; return; }
             string element = driver.FindElementByXPath("//div[@class='section-header']/p[2]").GetAttribute("textContent");
@@ -1797,6 +2085,8 @@ namespace Gladiatus_35
         {
             if (Convert.ToInt32(driver.FindElementByXPath("//div[@id='header_values_level']").GetAttribute("textContent")) < 100)
                 return false;
+            if (_BasicTasks.Search("//div[contains(@onmousemove,'Zbroja Disa Patera')]"))
+                return false;
             _BasicTasks.Click("//a[@title='Podgląd']");
             _BasicTasks.Click("//input[@value='zmień']");
             if (_BasicTasks.Search("//input[contains(@onclick,'Zbroja Disa Patera')]"))
@@ -1807,77 +2097,122 @@ namespace Gladiatus_35
             }
             return false;
         }
-        public void StoreItems()
+        public void Store_Components()
         {
+            if (!Properties.Settings.Default.send_components)
+                return;
             Arena();
             _BasicTasks.Click("//a[contains(@class,'menuitem')][text() = 'Magazyn surowców']");
             while (_BasicTasks.Search("//button[@id='store'][@disabled='']"))
                 _BasicTasks.Click("//input[@id='from-packages']");
             _BasicTasks.Click("//button[@id='store'][text() = 'Jazda!']");
         }
+        public void Download_Packages()
+        {
+            string file_path =
+            @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Items .txt files for Gladiatus_bot" + @"\items" + server_number + ".txt";
+            if (File.Exists(file_path))
+                File.Delete(file_path);
+            bool first = true;
+            do
+            {
+                Guild_Market();
+                if (!first) { _BasicTasks.Click("//a[contains(text(),'Następna strona')]"); }
+                int first_iterator = driver.FindElementsByXPath("//input[@value='Kup']").Count();
+                int second_iterator = driver.FindElementsByXPath("//input[@value='Anuluj']").Count();
+                int iterator = first_iterator + second_iterator;
+                for (int i = 2; i <= iterator; i++)
+                {
+                    IWebElement element = driver.FindElementByXPath("//section[@id='market_table']//tr[position()='" + i + "']/td[@style]/div[@style]");
+                    string soulbound = element.GetAttribute("data-soulbound-to");
+                    string price_item_string = driver.FindElementByXPath
+                        ("//section[@id='market_table']//tr[position()='" + i + "']/td[position()='3']").GetAttribute("textContent");
+                    string level = element.GetAttribute("data-level");
+                    string quality_level = element.GetAttribute("data-quality");
+                    string amount = element.GetAttribute("data-amount");
+                    string price_item = new String(price_item_string.Where(Char.IsDigit).ToArray());
+                    string category = element.GetAttribute("data-content-type");
+                    string class_name = element.GetAttribute("class");
 
+                    string already_sold = "0";
+                    _BasicTasks.MoveTo("//section[@id='market_table']//tr[position()='" + i + "']/td[@style]/div[@style]");
+                    if (_BasicTasks.Search("//p[contains(text(),'Wskazówka')]"))
+                        already_sold = "1";
+
+                    if (soulbound == null)
+                        soulbound = "null";
+                    if (level == null)
+                        level = "null";
+                    if (quality_level == null)
+                        quality_level = "null";
+                    if (amount == null)
+                        amount = "null";
+                    if (category == null)
+                        category = "null";
+                    if (class_name == null)
+                        category = "null";
+                    string ready_line = class_name + " " + soulbound + " " + price_item + " " + category + " " + quality_level + " " + level + " " + amount + " " + already_sold;
+                    File.AppendAllText(file_path, ready_line + Environment.NewLine);
+                }
+                first = false;
+            } while (_BasicTasks.Search("//a[contains(text(),'Następna strona')]"));
+        }
         #endregion
 
         #region PRIVATE
         string Type_Pack(string choose)
         {
-            if (choose == "*") { return "Wszystko"; }
+            if (choose == "null") { return "Wszystko"; }
 
             int example = Convert.ToInt32(choose);
             switch (example)
             {
-                case 1:
-                    return "Bronie";
                 case 2:
-                    return "Tarcze";
-                case 3:
-                    return "Napierśniki";
+                    return "Bronie";
                 case 4:
-                    return "Hełmy";
-                case 5:
-                    return "Rękawice";
-                case 6:
-                    return "Buty";
-                case 7:
-                    return "Pierścienie";
+                    return "Tarcze";
                 case 8:
+                    return "Napierśniki";
+                case 1:
+                    return "Hełmy";
+                case 256:
+                    return "Rękawice";
+                case 512:
+                    return "Buty";
+                case 48:
+                    return "Pierścienie";
+                case 1024:
                     return "Amulety";
-                case 9:
-                    return "Jadalne";
-                case 10:
-                    return "Przyspieszacze";
-                case 11:
+                case 4096:
                     return "Bonusy";
-                case 12:
+                case 8192:
                     return "Błogosławieństwa";
-                case 13:
+                case 16384:
                     return "Najemnik";
-                case 14:
+                case 32768:
                     return "Składniki kuźnicze";
-                case 15:
+                case 65536:
                     return "Dodatki";
-                case 16:
-                    return "Zwój";
                 default:
                     return "Wszystko";
             }
         }
         string Quality_Pack(string choose)
         {
-            if (choose == "*") { return "Normalny"; }
+            if (choose == "null") { return "Normalny"; }
 
             int example = Convert.ToInt32(choose);
             switch (example)
             {
-                case 1:
+                case 0:
                     return "Ceres (zielony)";
-                case 2:
+                case 1:
                     return "Neptun (niebieski)";
-                case 3:
+                case 2:
                     return "Mars (purpurowy)";
-                case 4:
+                case 3:
                     return "Jupiter (pomarańczowy)";
-                case 5:
+                case 4:
                     return "Olimp (czerwony)";
                 default:
                     return "Normalny";
@@ -1885,103 +2220,107 @@ namespace Gladiatus_35
         }
         void HealMe()
         {
-            if (!Properties.Settings.Default.heal_me) { return; }
-            while (Health_Level() < health_level)
-            {
-                if (!food_exist_backpack && !food_exist_packages) { return; }
-
-                _BasicTasks.Click("//a[@title='Podgląd']");
-                _BasicTasks.Click("//div[@class='charmercpic doll1']");
-                if (!FoodBackpack()) { return; }
-
-                IReadOnlyCollection<IWebElement> food_elements = driver.FindElementsByXPath("//div[@id='inv']/div[@data-content-type='64']");
-                if (food_elements.Count == 0)
+                if (!Properties.Settings.Default.heal_me) { return; }
+                while (Health_Level() < health_level)
                 {
-                    need_food = true;
-                    MovingFood();
-                    food_exist_backpack = false;
-                }
-                else { food_exist_backpack = true; }
-                string[] data_tooltips = new string[food_elements.Count];
-                int[] health_food = new int[food_elements.Count];
+                    if (!food_exist_backpack && !food_exist_packages) { return; }
 
-                for (int i = 0; i < food_elements.Count; i++)
-                {
-                    data_tooltips[i] = food_elements.ElementAt(i).GetAttribute("data-tooltip");
-                }
+                    _BasicTasks.Click("//a[@title='Podgląd']");
+                    _BasicTasks.Click("//div[@class='charmercpic doll1']");
+                    if (!FoodBackpack()) { return; }
 
-                int current_health = Convert.ToInt32(driver.FindElementByXPath("//div[@id='header_values_hp_bar']").GetAttribute("data-value"));
-                int current_health_max = Convert.ToInt32(driver.FindElementByXPath("//div[@id='header_values_hp_bar']").GetAttribute("data-max-value"));
-                int current_best_health = 0;
-                int best_choice = 0;
-                bool first_time = true;
-
-                for (int i = 0; i < food_elements.Count; i++)
-                {
-                    string[] separated = data_tooltips.ElementAt(i).Split(' ');
-                    for (int j = 0; j < separated.Length; j++)
+                    IReadOnlyCollection<IWebElement> food_elements = driver.FindElementsByXPath("//div[@id='inv']/div[@data-content-type='64']");
+                    if (food_elements.Count == 0)
                     {
-                        if (separated[j] == "Leczy")
-                        {
-                            health_food[i] = Convert.ToInt32(separated[j + 1]);
-                            break;
-                        }
+                        need_food = true;
+                        MovingFood();
+                        food_exist_backpack = false;
+                        return;
+                    }
+                    else { food_exist_backpack = true; }
+                    string[] data_tooltips = new string[food_elements.Count];
+                    int[] health_food = new int[food_elements.Count];
+
+                    for (int i = 0; i < food_elements.Count; i++)
+                    {
+                        data_tooltips[i] = food_elements.ElementAt(i).GetAttribute("data-tooltip");
                     }
 
-                }
+                    int current_health = Convert.ToInt32(driver.FindElementByXPath("//div[@id='header_values_hp_bar']").GetAttribute("data-value"));
+                    int current_health_max = Convert.ToInt32(driver.FindElementByXPath("//div[@id='header_values_hp_bar']").GetAttribute("data-max-value"));
+                    int current_best_health = 0;
+                    int best_choice = 0;
+                    bool first_time = true;
 
-                for (int i = 0; i < food_elements.Count; i++)
-                {
-                    if (first_time)
+                    for (int i = 0; i < food_elements.Count; i++)
                     {
-                        current_best_health = current_health + health_food[i];
-                        if (current_best_health < current_health_max)
+                        string[] separated = data_tooltips.ElementAt(i).Split(' ');
+                        for (int j = 0; j < separated.Length; j++)
+                        {
+                            if (separated[j] == "Leczy")
+                            {
+                                health_food[i] = Convert.ToInt32(separated[j + 1]);
+                                break;
+                            }
+                        }
+
+                    }
+
+                    for (int i = 0; i < food_elements.Count; i++)
+                    {
+                        if (first_time)
+                        {
+                            current_best_health = current_health + health_food[i];
+                            if (current_best_health < current_health_max)
+                            {
+                                best_choice = i;
+                                break;
+                            }
+                            else
+                            {
+                                current_best_health = current_best_health - current_health_max;
+                                first_time = false;
+                                continue;
+                            }
+                        }
+
+                        int temporary = health_food[i] + current_health;
+                        int temporary_difference = temporary - current_health_max;
+                        if (temporary < current_health_max)
                         {
                             best_choice = i;
                             break;
                         }
-                        else
+                        else if (temporary_difference < current_best_health)
                         {
-                            current_best_health = current_best_health - current_health_max;
-                            first_time = false;
-                            continue;
+                            best_choice = i;
                         }
                     }
 
-                    int temporary = health_food[i] + current_health;
-                    int temporary_difference = temporary - current_health_max;
-                    if (temporary < current_health_max)
-                    {
-                        best_choice = i;
-                        break;
-                    }
-                    else if (temporary_difference < current_best_health)
-                    {
-                        best_choice = i;
-                    }
+                    IWebElement best_element = food_elements.ElementAt(best_choice);
+                    Actions move = new Actions(driver);
+                    move.ClickAndHold(best_element);
+                    move.Release(_BasicTasks.GetElement("//div[@id='avatar']/div[@class='ui-droppable']"));
+                    move.Build().Perform();
+                    _BasicTasks.Click("//a[@title='Podgląd']");
                 }
-
-                IWebElement best_element = food_elements.ElementAt(best_choice);
-                Actions move = new Actions(driver);
-                move.ClickAndHold(best_element);
-                move.Release(_BasicTasks.GetElement("//div[@id='avatar']/div[@class='ui-droppable']"));
-                move.Build().Perform();
-                _BasicTasks.Click("//a[@title='Podgląd']");
-            }
         }
         static List<string> FindReadyObjects(IReadOnlyCollection<IWebElement> list, int categoryNumber)
         {
             string[] filtr = new string[list.Count];
             List<string> collectionReady = new List<string>();
-
             for (int i = 0; i < list.Count; i++)
             {
                 string helperString = Convert.ToString(list.ElementAt(i).GetAttribute("data-quality"));
                 filtr[i] = Convert.ToString(list.ElementAt(i).GetAttribute("data-hash"));
 
-                if (helperString != "3" && helperString != "4") { collectionReady.Add(filtr[i]); }
-                else if (categoryNumber == 11 || categoryNumber == 12) { collectionReady.Add(filtr[i]); }
-
+                if(helperString == "2" && Properties.Settings.Default.purple_selling ||
+                    helperString == "3" && Properties.Settings.Default.orange_selling ||
+                    helperString == "4" && Properties.Settings.Default.red_selling ||
+                    categoryNumber == 11 || categoryNumber == 12)
+                {
+                    collectionReady.Add(filtr[i]);
+                }
             }
             return collectionReady;
         }
@@ -1996,7 +2335,10 @@ namespace Gladiatus_35
                 string helperString = Convert.ToString(list.ElementAt(i).GetAttribute("data-quality"));
                 filtr[i] = Convert.ToString(list.ElementAt(i).GetAttribute("data-hash"));
 
-                if (helperString != "3" && helperString != "4" || categoryNumber == 11 || categoryNumber == 12)
+                if (helperString == "2" && Properties.Settings.Default.purple_selling ||
+                    helperString == "3" && Properties.Settings.Default.orange_selling ||
+                    helperString == "4" && Properties.Settings.Default.red_selling ||
+                    categoryNumber == 11 || categoryNumber == 12)
                 {
                     temporary_string = Convert.ToString(list.ElementAt(i).GetAttribute("class"));
                     string[] temporary_string_array = temporary_string.Split(' ');
@@ -2111,7 +2453,7 @@ namespace Gladiatus_35
             { _BasicTasks.Click(food_backpack_string); return true; }
             else { return false; }
         }
-        void Packages()
+        public void Packages()
         {
             _BasicTasks.Click("//a[@id='menue_packages']");
         }

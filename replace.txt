@@ -1,5 +1,4 @@
-﻿if (!first && quality[i] == first_quality) { continue; }
-                else if (!first && quality[i] != first_quality) { another_quality = true; break; }
-
-                if (first && quality[i] != "*")
-                { first_quality = quality[i]; first = false; }
+﻿
+                            temporary = amount[i];
+                            amount[i] = amount[i + 1];
+                            amount[i + 1] = temporary;

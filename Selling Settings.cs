@@ -69,6 +69,9 @@ namespace Gladiatus_35
             Properties.Settings.Default.bonusySellChecked = bonusySell.Checked;
             Properties.Settings.Default.błogosławieństwaSellChecked = błogosławieństwaSell.Checked;
             Properties.Settings.Default.zwójSellChecked = zwójSell.Checked;
+            Properties.Settings.Default.purple_selling = checkBox1.Checked;
+            Properties.Settings.Default.orange_selling = checkBox2.Checked;
+            Properties.Settings.Default.red_selling = checkBox3.Checked;
 
             Properties.Settings.Default.Save();
             Form1.update_data = true;
@@ -77,6 +80,10 @@ namespace Gladiatus_35
 
         private void Form2_Load(object sender, EventArgs e)
         {
+            checkBox1.Checked = Properties.Settings.Default.purple_selling;
+            checkBox2.Checked = Properties.Settings.Default.orange_selling;
+            checkBox3.Checked = Properties.Settings.Default.red_selling;
+
             bronie.Checked = Properties.Settings.Default.bronieChecked;
             tarcze.Checked = Properties.Settings.Default.tarczeChecked;
             napierśniki.Checked = Properties.Settings.Default.napierśnikiChecked;

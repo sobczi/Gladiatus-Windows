@@ -30,6 +30,7 @@ namespace Gladiatus_35
             textBox1.Text = Properties.Settings.Default.gold_level;
             textBox2.Text = Properties.Settings.Default.minimum_gold_pack;
             checkBox3.Checked = textBox3.Enabled = Properties.Settings.Default.heal_me;
+            checkBox4.Checked = Properties.Settings.Default.send_components;
 
             comboBox1.SelectedIndex = Properties.Settings.Default.expeditionOption;
             comboBox2.SelectedIndex = Properties.Settings.Default.dungeonsOption;
@@ -43,6 +44,7 @@ namespace Gladiatus_35
 
         private void button1_Click(object sender, EventArgs e)
         {
+            Properties.Settings.Default.send_components = checkBox4.Checked;
             Properties.Settings.Default.farm_arenas = checkBox12.Checked;
             Properties.Settings.Default.extractItems = checkBox17.Checked;
             Properties.Settings.Default.foodBackpack = comboBox4.SelectedIndex;
