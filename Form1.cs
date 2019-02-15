@@ -451,7 +451,7 @@ namespace Gladiatus_35
                         for (int i = 0; i < processes.Length; i++)
                         {
                             if (proces.ProcessName == processes[i] && proces.ProcessName != Process.GetCurrentProcess().ProcessName)
-                            { found_process = true; continue; }
+                            { found_process = true; break; }
                         }
                     }
                 } while (found_process && turn_off);

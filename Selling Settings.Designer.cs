@@ -76,7 +76,7 @@
             // bronie
             // 
             this.bronie.AutoSize = true;
-            this.bronie.Location = new System.Drawing.Point(16, 32);
+            this.bronie.Location = new System.Drawing.Point(16, 34);
             this.bronie.Name = "bronie";
             this.bronie.Size = new System.Drawing.Size(18, 17);
             this.bronie.TabIndex = 0;
@@ -85,7 +85,7 @@
             // tarcze
             // 
             this.tarcze.AutoSize = true;
-            this.tarcze.Location = new System.Drawing.Point(16, 55);
+            this.tarcze.Location = new System.Drawing.Point(16, 58);
             this.tarcze.Name = "tarcze";
             this.tarcze.Size = new System.Drawing.Size(18, 17);
             this.tarcze.TabIndex = 1;
@@ -94,7 +94,7 @@
             // napierśniki
             // 
             this.napierśniki.AutoSize = true;
-            this.napierśniki.Location = new System.Drawing.Point(16, 78);
+            this.napierśniki.Location = new System.Drawing.Point(16, 83);
             this.napierśniki.Name = "napierśniki";
             this.napierśniki.Size = new System.Drawing.Size(18, 17);
             this.napierśniki.TabIndex = 2;
@@ -103,7 +103,7 @@
             // hełmy
             // 
             this.hełmy.AutoSize = true;
-            this.hełmy.Location = new System.Drawing.Point(16, 101);
+            this.hełmy.Location = new System.Drawing.Point(16, 107);
             this.hełmy.Name = "hełmy";
             this.hełmy.Size = new System.Drawing.Size(18, 17);
             this.hełmy.TabIndex = 3;
@@ -112,7 +112,7 @@
             // rekawice
             // 
             this.rekawice.AutoSize = true;
-            this.rekawice.Location = new System.Drawing.Point(16, 124);
+            this.rekawice.Location = new System.Drawing.Point(16, 132);
             this.rekawice.Name = "rekawice";
             this.rekawice.Size = new System.Drawing.Size(18, 17);
             this.rekawice.TabIndex = 4;
@@ -121,7 +121,7 @@
             // buty
             // 
             this.buty.AutoSize = true;
-            this.buty.Location = new System.Drawing.Point(16, 147);
+            this.buty.Location = new System.Drawing.Point(16, 156);
             this.buty.Name = "buty";
             this.buty.Size = new System.Drawing.Size(18, 17);
             this.buty.TabIndex = 5;
@@ -130,7 +130,7 @@
             // pierścienie
             // 
             this.pierścienie.AutoSize = true;
-            this.pierścienie.Location = new System.Drawing.Point(16, 170);
+            this.pierścienie.Location = new System.Drawing.Point(16, 181);
             this.pierścienie.Name = "pierścienie";
             this.pierścienie.Size = new System.Drawing.Size(18, 17);
             this.pierścienie.TabIndex = 6;
@@ -139,7 +139,7 @@
             // amulety
             // 
             this.amulety.AutoSize = true;
-            this.amulety.Location = new System.Drawing.Point(16, 193);
+            this.amulety.Location = new System.Drawing.Point(16, 205);
             this.amulety.Name = "amulety";
             this.amulety.Size = new System.Drawing.Size(18, 17);
             this.amulety.TabIndex = 7;
@@ -148,7 +148,7 @@
             // przyszpieszacze
             // 
             this.przyszpieszacze.AutoSize = true;
-            this.przyszpieszacze.Location = new System.Drawing.Point(16, 216);
+            this.przyszpieszacze.Location = new System.Drawing.Point(16, 230);
             this.przyszpieszacze.Name = "przyszpieszacze";
             this.przyszpieszacze.Size = new System.Drawing.Size(18, 17);
             this.przyszpieszacze.TabIndex = 8;
@@ -157,7 +157,7 @@
             // bonusy
             // 
             this.bonusy.AutoSize = true;
-            this.bonusy.Location = new System.Drawing.Point(16, 239);
+            this.bonusy.Location = new System.Drawing.Point(16, 254);
             this.bonusy.Name = "bonusy";
             this.bonusy.Size = new System.Drawing.Size(18, 17);
             this.bonusy.TabIndex = 9;
@@ -166,7 +166,7 @@
             // błogosławieństwa
             // 
             this.błogosławieństwa.AutoSize = true;
-            this.błogosławieństwa.Location = new System.Drawing.Point(16, 262);
+            this.błogosławieństwa.Location = new System.Drawing.Point(16, 278);
             this.błogosławieństwa.Name = "błogosławieństwa";
             this.błogosławieństwa.Size = new System.Drawing.Size(18, 17);
             this.błogosławieństwa.TabIndex = 10;
@@ -175,7 +175,7 @@
             // zwój
             // 
             this.zwój.AutoSize = true;
-            this.zwój.Location = new System.Drawing.Point(16, 285);
+            this.zwój.Location = new System.Drawing.Point(16, 303);
             this.zwój.Name = "zwój";
             this.zwój.Size = new System.Drawing.Size(18, 17);
             this.zwój.TabIndex = 11;
@@ -188,9 +188,9 @@
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Font = new System.Drawing.Font("Century Gothic", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.button1.ForeColor = System.Drawing.Color.Black;
-            this.button1.Location = new System.Drawing.Point(12, 308);
+            this.button1.Location = new System.Drawing.Point(12, 327);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(231, 30);
+            this.button1.Size = new System.Drawing.Size(231, 32);
             this.button1.TabIndex = 12;
             this.button1.Text = "SAVE!";
             this.button1.UseVisualStyleBackColor = false;
@@ -201,7 +201,7 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label1.ForeColor = System.Drawing.Color.Black;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(12, 10);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(20, 20);
             this.label1.TabIndex = 13;
@@ -212,7 +212,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label2.ForeColor = System.Drawing.Color.Black;
-            this.label2.Location = new System.Drawing.Point(35, 9);
+            this.label2.Location = new System.Drawing.Point(35, 10);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(21, 20);
             this.label2.TabIndex = 14;
@@ -221,7 +221,7 @@
             // zwójSell
             // 
             this.zwójSell.AutoSize = true;
-            this.zwójSell.Location = new System.Drawing.Point(40, 285);
+            this.zwójSell.Location = new System.Drawing.Point(40, 303);
             this.zwójSell.Name = "zwójSell";
             this.zwójSell.Size = new System.Drawing.Size(18, 17);
             this.zwójSell.TabIndex = 26;
@@ -230,7 +230,7 @@
             // błogosławieństwaSell
             // 
             this.błogosławieństwaSell.AutoSize = true;
-            this.błogosławieństwaSell.Location = new System.Drawing.Point(39, 262);
+            this.błogosławieństwaSell.Location = new System.Drawing.Point(39, 278);
             this.błogosławieństwaSell.Name = "błogosławieństwaSell";
             this.błogosławieństwaSell.Size = new System.Drawing.Size(18, 17);
             this.błogosławieństwaSell.TabIndex = 25;
@@ -239,7 +239,7 @@
             // bonusySell
             // 
             this.bonusySell.AutoSize = true;
-            this.bonusySell.Location = new System.Drawing.Point(39, 239);
+            this.bonusySell.Location = new System.Drawing.Point(39, 254);
             this.bonusySell.Name = "bonusySell";
             this.bonusySell.Size = new System.Drawing.Size(18, 17);
             this.bonusySell.TabIndex = 24;
@@ -248,7 +248,7 @@
             // przyspieszaczeSell
             // 
             this.przyspieszaczeSell.AutoSize = true;
-            this.przyspieszaczeSell.Location = new System.Drawing.Point(39, 216);
+            this.przyspieszaczeSell.Location = new System.Drawing.Point(39, 230);
             this.przyspieszaczeSell.Name = "przyspieszaczeSell";
             this.przyspieszaczeSell.Size = new System.Drawing.Size(18, 17);
             this.przyspieszaczeSell.TabIndex = 23;
@@ -257,7 +257,7 @@
             // amuletySell
             // 
             this.amuletySell.AutoSize = true;
-            this.amuletySell.Location = new System.Drawing.Point(39, 193);
+            this.amuletySell.Location = new System.Drawing.Point(39, 205);
             this.amuletySell.Name = "amuletySell";
             this.amuletySell.Size = new System.Drawing.Size(18, 17);
             this.amuletySell.TabIndex = 22;
@@ -266,7 +266,7 @@
             // pierścienieSell
             // 
             this.pierścienieSell.AutoSize = true;
-            this.pierścienieSell.Location = new System.Drawing.Point(39, 170);
+            this.pierścienieSell.Location = new System.Drawing.Point(39, 181);
             this.pierścienieSell.Name = "pierścienieSell";
             this.pierścienieSell.Size = new System.Drawing.Size(18, 17);
             this.pierścienieSell.TabIndex = 21;
@@ -275,7 +275,7 @@
             // butySell
             // 
             this.butySell.AutoSize = true;
-            this.butySell.Location = new System.Drawing.Point(39, 147);
+            this.butySell.Location = new System.Drawing.Point(39, 156);
             this.butySell.Name = "butySell";
             this.butySell.Size = new System.Drawing.Size(18, 17);
             this.butySell.TabIndex = 20;
@@ -284,7 +284,7 @@
             // rekawiceSell
             // 
             this.rekawiceSell.AutoSize = true;
-            this.rekawiceSell.Location = new System.Drawing.Point(39, 124);
+            this.rekawiceSell.Location = new System.Drawing.Point(39, 132);
             this.rekawiceSell.Name = "rekawiceSell";
             this.rekawiceSell.Size = new System.Drawing.Size(18, 17);
             this.rekawiceSell.TabIndex = 19;
@@ -293,7 +293,7 @@
             // hełmySell
             // 
             this.hełmySell.AutoSize = true;
-            this.hełmySell.Location = new System.Drawing.Point(39, 101);
+            this.hełmySell.Location = new System.Drawing.Point(39, 107);
             this.hełmySell.Name = "hełmySell";
             this.hełmySell.Size = new System.Drawing.Size(18, 17);
             this.hełmySell.TabIndex = 18;
@@ -302,7 +302,7 @@
             // napierśnikiSell
             // 
             this.napierśnikiSell.AutoSize = true;
-            this.napierśnikiSell.Location = new System.Drawing.Point(39, 78);
+            this.napierśnikiSell.Location = new System.Drawing.Point(39, 83);
             this.napierśnikiSell.Name = "napierśnikiSell";
             this.napierśnikiSell.Size = new System.Drawing.Size(18, 17);
             this.napierśnikiSell.TabIndex = 17;
@@ -311,7 +311,7 @@
             // tarczeSell
             // 
             this.tarczeSell.AutoSize = true;
-            this.tarczeSell.Location = new System.Drawing.Point(39, 55);
+            this.tarczeSell.Location = new System.Drawing.Point(39, 58);
             this.tarczeSell.Name = "tarczeSell";
             this.tarczeSell.Size = new System.Drawing.Size(18, 17);
             this.tarczeSell.TabIndex = 16;
@@ -320,7 +320,7 @@
             // bronieSell
             // 
             this.bronieSell.AutoSize = true;
-            this.bronieSell.Location = new System.Drawing.Point(39, 32);
+            this.bronieSell.Location = new System.Drawing.Point(39, 34);
             this.bronieSell.Name = "bronieSell";
             this.bronieSell.Size = new System.Drawing.Size(18, 17);
             this.bronieSell.TabIndex = 15;
@@ -331,7 +331,7 @@
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label3.ForeColor = System.Drawing.Color.Black;
-            this.label3.Location = new System.Drawing.Point(63, 30);
+            this.label3.Location = new System.Drawing.Point(63, 32);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(51, 19);
             this.label3.TabIndex = 27;
@@ -342,7 +342,7 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label4.ForeColor = System.Drawing.Color.Black;
-            this.label4.Location = new System.Drawing.Point(63, 55);
+            this.label4.Location = new System.Drawing.Point(63, 58);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(52, 19);
             this.label4.TabIndex = 28;
@@ -353,7 +353,7 @@
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label5.ForeColor = System.Drawing.Color.Black;
-            this.label5.Location = new System.Drawing.Point(63, 78);
+            this.label5.Location = new System.Drawing.Point(63, 83);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(82, 19);
             this.label5.TabIndex = 29;
@@ -364,7 +364,7 @@
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label6.ForeColor = System.Drawing.Color.Black;
-            this.label6.Location = new System.Drawing.Point(63, 101);
+            this.label6.Location = new System.Drawing.Point(63, 107);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(53, 19);
             this.label6.TabIndex = 30;
@@ -375,7 +375,7 @@
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label7.ForeColor = System.Drawing.Color.Black;
-            this.label7.Location = new System.Drawing.Point(63, 124);
+            this.label7.Location = new System.Drawing.Point(63, 132);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(77, 19);
             this.label7.TabIndex = 31;
@@ -386,7 +386,7 @@
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label8.ForeColor = System.Drawing.Color.Black;
-            this.label8.Location = new System.Drawing.Point(63, 147);
+            this.label8.Location = new System.Drawing.Point(63, 156);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(39, 19);
             this.label8.TabIndex = 32;
@@ -397,7 +397,7 @@
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label9.ForeColor = System.Drawing.Color.Black;
-            this.label9.Location = new System.Drawing.Point(63, 170);
+            this.label9.Location = new System.Drawing.Point(63, 181);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(80, 19);
             this.label9.TabIndex = 33;
@@ -408,7 +408,7 @@
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label10.ForeColor = System.Drawing.Color.Black;
-            this.label10.Location = new System.Drawing.Point(63, 193);
+            this.label10.Location = new System.Drawing.Point(63, 205);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(65, 19);
             this.label10.TabIndex = 34;
@@ -419,7 +419,7 @@
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label11.ForeColor = System.Drawing.Color.Black;
-            this.label11.Location = new System.Drawing.Point(63, 216);
+            this.label11.Location = new System.Drawing.Point(63, 230);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(113, 19);
             this.label11.TabIndex = 35;
@@ -430,7 +430,7 @@
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label12.ForeColor = System.Drawing.Color.Black;
-            this.label12.Location = new System.Drawing.Point(63, 239);
+            this.label12.Location = new System.Drawing.Point(63, 254);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(57, 19);
             this.label12.TabIndex = 36;
@@ -441,7 +441,7 @@
             this.label13.AutoSize = true;
             this.label13.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label13.ForeColor = System.Drawing.Color.Black;
-            this.label13.Location = new System.Drawing.Point(63, 262);
+            this.label13.Location = new System.Drawing.Point(63, 278);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(132, 19);
             this.label13.TabIndex = 37;
@@ -452,7 +452,7 @@
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label14.ForeColor = System.Drawing.Color.Black;
-            this.label14.Location = new System.Drawing.Point(64, 285);
+            this.label14.Location = new System.Drawing.Point(64, 303);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(40, 19);
             this.label14.TabIndex = 38;
@@ -461,9 +461,10 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(143, 32);
+            this.checkBox1.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.checkBox1.Location = new System.Drawing.Point(159, 28);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(71, 21);
+            this.checkBox1.Size = new System.Drawing.Size(74, 23);
             this.checkBox1.TabIndex = 39;
             this.checkBox1.Text = "Purple";
             this.checkBox1.UseVisualStyleBackColor = true;
@@ -471,9 +472,10 @@
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(143, 60);
+            this.checkBox2.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.checkBox2.Location = new System.Drawing.Point(159, 58);
             this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(78, 21);
+            this.checkBox2.Size = new System.Drawing.Size(84, 23);
             this.checkBox2.TabIndex = 40;
             this.checkBox2.Text = "Orange";
             this.checkBox2.UseVisualStyleBackColor = true;
@@ -481,19 +483,20 @@
             // checkBox3
             // 
             this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(143, 88);
+            this.checkBox3.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.checkBox3.Location = new System.Drawing.Point(159, 88);
             this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(56, 21);
+            this.checkBox3.Size = new System.Drawing.Size(59, 23);
             this.checkBox3.TabIndex = 41;
             this.checkBox3.Text = "Red";
             this.checkBox3.UseVisualStyleBackColor = true;
             // 
             // Selling_Settings
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(255, 345);
+            this.ClientSize = new System.Drawing.Size(255, 367);
             this.Controls.Add(this.checkBox3);
             this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.checkBox1);
@@ -536,6 +539,7 @@
             this.Controls.Add(this.napierśnikiSell);
             this.Controls.Add(this.tarczeSell);
             this.Controls.Add(this.bronieSell);
+            this.Font = new System.Drawing.Font("Century Gothic", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Selling_Settings";

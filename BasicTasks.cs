@@ -123,8 +123,8 @@ namespace Gladiatus_35
         {
             if(driver != null)
             { driver.Close(); driver.Quit(); }
-            if (Properties.Settings.Default.sleepModeChecked && _turn_off)
-            { Application.SetSuspendState(PowerState.Suspend, true, false); KillChromes(); }
+            if (Properties.Settings.Default.sleepModeChecked && _turn_off && Properties.Settings.Default.main_bot)
+            { KillChromes(); Application.SetSuspendState(PowerState.Suspend, true, false); }
             foreach (Form f in Application.OpenForms) { f.Close(); }
             Application.Exit();
         }

@@ -1493,7 +1493,7 @@ namespace Gladiatus_35
                 }
                 else
                 {
-                    if (Gold_Level() < Convert.ToInt32(Properties.Settings.Default.gold_level))
+                    if (Gold_Level() > Convert.ToInt32(Properties.Settings.Default.gold_level) && Properties.Settings.Default.gold_limit)
                         return;
                     switch (categoryNumber)
                     {
@@ -2321,6 +2321,10 @@ namespace Gladiatus_35
                 {
                     collectionReady.Add(filtr[i]);
                 }
+                else if (helperString != "2" && helperString != "3" && helperString != "4")
+                {
+                    collectionReady.Add(filtr[i]);
+                }
             }
             return collectionReady;
         }
@@ -2339,6 +2343,13 @@ namespace Gladiatus_35
                     helperString == "3" && Properties.Settings.Default.orange_selling ||
                     helperString == "4" && Properties.Settings.Default.red_selling ||
                     categoryNumber == 11 || categoryNumber == 12)
+                {
+                    temporary_string = Convert.ToString(list.ElementAt(i).GetAttribute("class"));
+                    string[] temporary_string_array = temporary_string.Split(' ');
+                    temporary_string = temporary_string_array[0];
+                    collectionReadyClass.Add(temporary_string);
+                }
+                else if(helperString != "2" && helperString != "3" && helperString != "4")
                 {
                     temporary_string = Convert.ToString(list.ElementAt(i).GetAttribute("class"));
                     string[] temporary_string_array = temporary_string.Split(' ');
