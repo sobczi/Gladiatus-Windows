@@ -14,6 +14,19 @@ namespace Gladiatus_35
 
         private void Botting_Settings_Load(object sender, EventArgs e)
         {
+            if (checkBox8.Checked)
+            {
+                checkBox9.Enabled = true;
+                checkBox18.Enabled = true;
+                checkBox19.Enabled = true;
+            }
+            else
+            {
+                checkBox9.Enabled = false;
+                checkBox18.Enabled = false;
+                checkBox19.Enabled = false;
+            }
+
             checkBox12.Checked = Properties.Settings.Default.farm_arenas;
             checkBox2.Checked = Properties.Settings.Default.sleepModeChecked;
             textBox2.Enabled = checkBox5.Checked = Properties.Settings.Default.pakujChecked;
@@ -31,6 +44,10 @@ namespace Gladiatus_35
             textBox2.Text = Properties.Settings.Default.minimum_gold_pack;
             checkBox3.Checked = textBox3.Enabled = Properties.Settings.Default.heal_me;
             checkBox4.Checked = Properties.Settings.Default.send_components;
+            checkBox8.Checked = Properties.Settings.Default.get_for_extract;
+            checkBox9.Checked = Properties.Settings.Default.purple_extracting;
+            checkBox18.Checked = Properties.Settings.Default.orange_extracing;
+            checkBox19.Checked = Properties.Settings.Default.red_extracting;
 
             comboBox1.SelectedIndex = Properties.Settings.Default.expeditionOption;
             comboBox2.SelectedIndex = Properties.Settings.Default.dungeonsOption;
@@ -66,6 +83,10 @@ namespace Gladiatus_35
             Properties.Settings.Default.minimum_gold_pack = textBox2.Text;
             Properties.Settings.Default.healthLevel = Convert.ToInt32(textBox3.Text);
             Properties.Settings.Default.heal_me = checkBox3.Checked;
+            Properties.Settings.Default.get_for_extract = checkBox8.Checked;
+            Properties.Settings.Default.purple_extracting = checkBox9.Checked;
+            Properties.Settings.Default.orange_extracing = checkBox18.Checked;
+            Properties.Settings.Default.red_extracting = checkBox19.Checked;
 
             Properties.Settings.Default.gold_limit = checkBox1.Checked;
             Properties.Settings.Default.gold_level = textBox1.Text;
@@ -156,6 +177,22 @@ namespace Gladiatus_35
         {
             if (checkBox11.Checked) { comboBox4.Enabled = true; }
             else if(!checkBox11.Checked && !checkBox3.Checked) { comboBox4.Enabled = false; }
+        }
+
+        private void checkBox8_CheckedChanged(object sender, EventArgs e)
+        {
+            if(checkBox8.Checked)
+            {
+                checkBox9.Enabled = true;
+                checkBox18.Enabled = true;
+                checkBox19.Enabled = true;
+            }
+            else
+            {
+                checkBox9.Enabled = false;
+                checkBox18.Enabled =false;
+                checkBox19.Enabled =false;
+            }
         }
     }
 }

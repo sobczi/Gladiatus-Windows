@@ -55,6 +55,14 @@ namespace Gladiatus_35
             move.MoveToElement(GetElement(xpath2));
             move.Build().Perform();
         }
+        public void MoveMoveElement(IWebElement element, string xpath2)
+        {
+            Thread.Sleep(500);
+            Actions move = new Actions(driver);
+            move.ClickAndHold(element);
+            move.MoveToElement(GetElement(xpath2));
+            move.Build().Perform();
+        }
         public void ReleaseElement(string xpath1)
         {
             Thread.Sleep(500);

@@ -288,6 +288,7 @@ namespace Gladiatus_35
                             } while (dungeon_points > 0 || expedition_points > 0 || Properties.Settings.Default.farm_arenas);
 
                             if (!botAction) { break; }
+                            _Tasks.Get_Items_For_Extract();
                             _Tasks.ExtractItems();
                             _Tasks.SellItems(false);
                             _Tasks.Pack_Gold();
@@ -451,7 +452,15 @@ namespace Gladiatus_35
                         for (int i = 0; i < processes.Length; i++)
                         {
                             if (proces.ProcessName == processes[i] && proces.ProcessName != Process.GetCurrentProcess().ProcessName)
-                            { found_process = true; break; }
+                            {
+                                found_process = true;
+                                break;
+                            }
+                        }
+
+                        if(found_process)
+                        {
+                            break;
                         }
                     }
                 } while (found_process && turn_off);

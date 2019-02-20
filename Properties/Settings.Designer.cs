@@ -850,5 +850,53 @@ namespace Gladiatus_35.Properties {
                 this["red_selling"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool get_for_extract {
+            get {
+                return ((bool)(this["get_for_extract"]));
+            }
+            set {
+                this["get_for_extract"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool red_extracting {
+            get {
+                return ((bool)(this["red_extracting"]));
+            }
+            set {
+                this["red_extracting"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool orange_extracing {
+            get {
+                return ((bool)(this["orange_extracing"]));
+            }
+            set {
+                this["orange_extracing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool purple_extracting {
+            get {
+                return ((bool)(this["purple_extracting"]));
+            }
+            set {
+                this["purple_extracting"] = value;
+            }
+        }
     }
 }

@@ -1494,7 +1494,10 @@ namespace Gladiatus_35
                 else
                 {
                     if (Gold_Level() > Convert.ToInt32(Properties.Settings.Default.gold_level) && Properties.Settings.Default.gold_limit)
+                    {
                         return;
+                    }
+
                     switch (categoryNumber)
                     {
                         case 1:
@@ -2157,9 +2160,70 @@ namespace Gladiatus_35
                 first = false;
             } while (_BasicTasks.Search("//a[contains(text(),'Następna strona')]"));
         }
+
+        public void Get_Items_For_Extract()
+        {
+            if(Properties.Settings.Default.get_for_extract)
+            {
+                Packages();
+                _BasicTasks.SelectElement("//select[@name='fq']", "Mars (purpurowy)");
+                _BasicTasks.Click("//input[@value='Filtr']");
+
+                string[] invalid_types = new string[4];
+                invalid_types[0] = "64";
+                invalid_types[1] = "4096";
+                invalid_types[2] = "8192";
+                invalid_types[3] = "32768";
+                while (_BasicTasks.Search("//a[@class='paging_button paging_right_step']"))
+                {
+                    ExtractBackpack();
+                    IReadOnlyCollection<IWebElement> all_items = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
+                    for(int i=0; i<all_items.Count; i++)
+                    {
+                        bool good = true;
+                        for(int j=0; j<invalid_types.Count(); j++)
+                        {
+                            if (all_items.ElementAt(i).GetAttribute("data-content-type") == invalid_types[j])
+                                good = false;
+                        }
+
+                        if(good)
+                        {
+                            if(all_items.ElementAt(i).GetAttribute("data-quality") == "4" && Properties.Settings.Default.red_extracting)
+                            {
+                                if (!Move_Item_For_Extract(all_items.ElementAt(i)))
+                                    return;
+                            }
+                            else if(all_items.ElementAt(i).GetAttribute("data-quality") == "3" && Properties.Settings.Default.orange_extracing)
+                            {
+                                if (!Move_Item_For_Extract(all_items.ElementAt(i)))
+                                    return;
+                            }
+                            else if (all_items.ElementAt(i).GetAttribute("data-quality") == "2" && Properties.Settings.Default.purple_extracting)
+                            {
+                                if (!Move_Item_For_Extract(all_items.ElementAt(i)))
+                                    return;
+                            }
+                        }
+                    }
+                    _BasicTasks.Click("//a[@class='paging_button paging_right_step']");
+                }
+            }
+        }
         #endregion
 
         #region PRIVATE
+        bool Move_Item_For_Extract(IWebElement element)
+        {
+            _BasicTasks.MoveMoveElement(element, "//input[@name='show-item-info']");
+            if (_BasicTasks.Search("//div[@class='ui-droppable grid-droparea image-grayed active']"))
+            {
+                _BasicTasks.ReleaseElement("//div[@class='ui-droppable grid-droparea image-grayed active']");
+                return true;
+            }
+            else
+                return false;
+        }
         string Type_Pack(string choose)
         {
             if (choose == "null") { return "Wszystko"; }
