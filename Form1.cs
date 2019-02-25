@@ -504,7 +504,13 @@ namespace Gladiatus_35
 
         private void button7_Click(object sender, EventArgs e)
         {
-            if (!downloadPackages) { Start_Botting(); TurnOff(); downloadPackages = true; button7.Text = "DOWNLOADING PACKAGES.."; }
+            if (!downloadPackages)
+            {
+                TurnOff();
+                downloadPackages = true;
+                Start_Botting();
+                button7.Text = "DOWNLOADING PACKAGES..";
+            }
             else { MessageBox.Show("WAIT UNTILL TASK ENDS.."); }
         }
     }

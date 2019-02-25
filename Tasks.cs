@@ -353,13 +353,12 @@ namespace Gladiatus_35
                 string[] types = new string[lines.Length];
                 string[] quality = new string[lines.Length];
                 string[] amount = new string[lines.Length];
+                string[] already_sold = new string[lines.Length];
 
                 int iterator = 0;
                 for (int i = 0; i < lines.Length; i++)
                 {
                     string[] separated_line = lines[i].Split(' ');
-                    if (separated_line.Length == 8)
-                    {
                         class_items[iterator] = separated_line[0];
                         soulbound_items[iterator] = separated_line[1];
                         price_items[iterator] = separated_line[2];
@@ -367,8 +366,8 @@ namespace Gladiatus_35
                         quality[iterator] = separated_line[4];
                         level_items[iterator] = separated_line[5];
                         amount[iterator] = separated_line[6];
+                        already_sold[iterator] = separated_line[7];
                         iterator++;
-                    }
                 }
 
                 bool changed = true;
@@ -448,7 +447,7 @@ namespace Gladiatus_35
                     by_level = true;
                 if (item_quality != "null")
                     by_quality = true;
-                for (int i = 2; i <= iterator; i++)
+                for (int i = 2; i <= iterator+1; i++)
                 {
                     if (_BasicTasks.Search("//section[@id='market_table']//tr[position()='" + i + "']/td[@align='center']/input[@value='Kup']"))
                     {
@@ -562,6 +561,7 @@ namespace Gladiatus_35
                         cena.SendKeys(OpenQA.Selenium.Keys.Delete);
                         cena.SendKeys(Convert.ToString(price_item_work));
                         _BasicTasks.Click("//input[@value='Oferta']");
+                        Thread.Sleep(2000);
 
                         if (_BasicTasks.Search("//div[@class='message fail']"))
                         { try { error_packing = true; Expedition(); goto sell; } catch { } }
@@ -598,18 +598,15 @@ namespace Gladiatus_35
             for (int i = 0; i < lines.Length; i++)
             {
                 string[] separated_line = lines[i].Split(' ');
-                if (separated_line.Length == 7)
-                {
-                    class_items[iterator] = separated_line[0];
-                    soulbound_items[iterator] = separated_line[1];
-                    price_items[iterator] = separated_line[2];
-                    types[iterator] = separated_line[3];
-                    qualities_items[iterator] = separated_line[4];
-                    level_items[iterator] = separated_line[5];
-                    amount_work[iterator] = separated_line[6];
-                    already_sold[iterator] = separated_line[7];
-                    iterator++;
-                }
+                class_items[iterator] = separated_line[0];
+                soulbound_items[iterator] = separated_line[1];
+                price_items[iterator] = separated_line[2];
+                types[iterator] = separated_line[3];
+                qualities_items[iterator] = separated_line[4];
+                level_items[iterator] = separated_line[5];
+                amount_work[iterator] = separated_line[6];
+                already_sold[iterator] = separated_line[7];
+                iterator++;
             }
 
             string type = types[0];
@@ -779,7 +776,10 @@ namespace Gladiatus_35
                     if (qualities && qualities_items[j] == quality) { fourth = true; }
                     if (by_amount && amount_work[j] == amount_temp) { fifth = true; }
 
-                    if (first && second && third && fourth && fifth) { found = true; found_case = j; break; }
+                    if (first && second && third && fourth && fifth)
+                    {
+                        found = true; found_case = j; break;
+                    }
                 }
                 if (found) { break; }
             }
@@ -865,23 +865,26 @@ namespace Gladiatus_35
                 if(_BasicTasks.Search("//p[contains(text(),'Wskazówka')]") != already_sold_needed)
                 {
                     Malefica_Seller();
+                    Third_Tab_Sellers();
+
                     _BasicTasks.MoveMoveElement(path2, "//a[@class='awesome-tabs current']");
-                    _BasicTasks.ReleaseElement("//div[@id='shop']//div[@class='ui-droppable grid-droparea image-grayed active']");
+                    if (_BasicTasks.Search("//div[@id='shop']//div[@class='ui-droppable grid-droparea image-grayed active']"))
+                        _BasicTasks.ReleaseElement("//div[@id='shop']//div[@class='ui-droppable grid-droparea image-grayed active']");
+                    else
+                        return;
+
                     Search_Pack();
                     return;
                 }
-                else
-                {
-                    _BasicTasks.ReleaseElement("//div[@id='market_sell']/div[@class='ui-droppable']");
-                }
 
-                //_BasicTasks.MoveReleaseElement(path2, "//div[@id='market_sell']/div[@class='ui-droppable']");
+                _BasicTasks.MoveReleaseElement(path2,"//div[@id='market_sell']/div[@class='ui-droppable']");
                 _BasicTasks.SelectElement("//select[@name='dauer']", "24 h");
                 var cena_2 = _BasicTasks.GetElement("//input[@name='preis']");
                 cena_2.SendKeys(OpenQA.Selenium.Keys.Control + "a");
                 cena_2.SendKeys(OpenQA.Selenium.Keys.Delete);
                 cena_2.SendKeys(Convert.ToString(price_items[found_case]));
                 _BasicTasks.Click("//input[@value='Oferta']");
+                Thread.Sleep(2000);
 
                 if (_BasicTasks.Search("//div[@class='message fail']"))
                 { try { error_packing = true; Expedition(); goto sell_inv; } catch { } }
@@ -2124,7 +2127,7 @@ namespace Gladiatus_35
                 int first_iterator = driver.FindElementsByXPath("//input[@value='Kup']").Count();
                 int second_iterator = driver.FindElementsByXPath("//input[@value='Anuluj']").Count();
                 int iterator = first_iterator + second_iterator;
-                for (int i = 2; i <= iterator; i++)
+                for (int i = 2; i <= iterator+1; i++)
                 {
                     IWebElement element = driver.FindElementByXPath("//section[@id='market_table']//tr[position()='" + i + "']/td[@style]/div[@style]");
                     string soulbound = element.GetAttribute("data-soulbound-to");
