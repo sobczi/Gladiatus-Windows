@@ -149,7 +149,7 @@ namespace Gladiatus_35
             Process killing = new Process();
             killing.StartInfo.CreateNoWindow = true;
             killing.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            killing.StartInfo.WorkingDirectory = @"C:\Users\danie\OneDrive\Pulpit\Other";
+            killing.StartInfo.WorkingDirectory = @"C:\Users\danie\Pulpit\Other";
             killing.StartInfo.FileName = "killChromes.lnk";
 
             foreach (Process proces in Process.GetProcesses())

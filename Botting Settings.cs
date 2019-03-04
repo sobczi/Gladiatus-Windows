@@ -83,10 +83,16 @@ namespace Gladiatus_35
             Properties.Settings.Default.minimum_gold_pack = textBox2.Text;
             Properties.Settings.Default.healthLevel = Convert.ToInt32(textBox3.Text);
             Properties.Settings.Default.heal_me = checkBox3.Checked;
-            Properties.Settings.Default.get_for_extract = checkBox8.Checked;
-            Properties.Settings.Default.purple_extracting = checkBox9.Checked;
-            Properties.Settings.Default.orange_extracing = checkBox18.Checked;
-            Properties.Settings.Default.red_extracting = checkBox19.Checked;
+
+            if (Properties.Settings.Default.get_for_extract)
+            {
+                Properties.Settings.Default.get_for_extract = checkBox8.Checked;
+                Properties.Settings.Default.purple_extracting = checkBox9.Checked;
+                Properties.Settings.Default.orange_extracing = checkBox18.Checked;
+                Properties.Settings.Default.red_extracting = checkBox19.Checked;
+            }
+            else
+                Properties.Settings.Default.get_for_extract = false;
 
             Properties.Settings.Default.gold_limit = checkBox1.Checked;
             Properties.Settings.Default.gold_level = textBox1.Text;

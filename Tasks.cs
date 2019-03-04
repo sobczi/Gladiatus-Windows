@@ -1417,6 +1417,7 @@ namespace Gladiatus_35
                 List<string> collectionSelling = new List<string>();
                 List<string> collectionReadyClass = new List<string>();
                 #endregion
+                int maximum_gold_level = Get_Maximum_Gold_Avalibe();
 
                 if(File.Exists(file_path))
                 {
@@ -1438,6 +1439,9 @@ namespace Gladiatus_35
 
                 if (!clickSell)
                 {
+                    if (Gold_Level() >= maximum_gold_level)
+                        return;
+
                     switch (categoryNumber)
                     {
                         case 1:
@@ -1496,7 +1500,7 @@ namespace Gladiatus_35
                 }
                 else
                 {
-                    if (Gold_Level() > Convert.ToInt32(Properties.Settings.Default.gold_level) && Properties.Settings.Default.gold_limit)
+                    if (Gold_Level() > Convert.ToInt32(Properties.Settings.Default.gold_level) && Properties.Settings.Default.gold_limit || Gold_Level() >= maximum_gold_level)
                     {
                         return;
                     }
@@ -2163,31 +2167,63 @@ namespace Gladiatus_35
                 first = false;
             } while (_BasicTasks.Search("//a[contains(text(),'Następna strona')]"));
         }
-
         public void Get_Items_For_Extract()
         {
             if(Properties.Settings.Default.get_for_extract)
             {
+                string colour = "";
+                if(Properties.Settings.Default.purple_extracting)
+                    colour = "Mars (purpurowy)";
+                else if(Properties.Settings.Default.orange_extracing)
+                    colour = "Jupiter (pomarańczowy)";
+                else if(Properties.Settings.Default.red_extracting)
+                    colour = "Olimp (czerwony)";
+
                 Packages();
-                _BasicTasks.SelectElement("//select[@name='fq']", "Mars (purpurowy)");
+                _BasicTasks.SelectElement("//select[@name='fq']", colour);
                 _BasicTasks.Click("//input[@value='Filtr']");
+
+                while(_BasicTasks.Search("//a[@class='paging_button paging_right_step']"))
+                    _BasicTasks.Click("//a[@class='paging_button paging_right_step']");
 
                 string[] invalid_types = new string[4];
                 invalid_types[0] = "64";
                 invalid_types[1] = "4096";
                 invalid_types[2] = "8192";
                 invalid_types[3] = "32768";
-                while (_BasicTasks.Search("//a[@class='paging_button paging_right_step']"))
+                while (_BasicTasks.Search("//div[@id='packages']//div[contains(@class,'ui-draggable')]"))
                 {
                     ExtractBackpack();
                     IReadOnlyCollection<IWebElement> all_items = driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
-                    for(int i=0; i<all_items.Count; i++)
+                    int[] items_good = new int[all_items.Count];
+                    for (int i=all_items.Count-1; i>=0; i--)
                     {
                         bool good = true;
                         for(int j=0; j<invalid_types.Count(); j++)
                         {
                             if (all_items.ElementAt(i).GetAttribute("data-content-type") == invalid_types[j])
+                            {
                                 good = false;
+                                break;
+                            }
+                        }
+
+                        if (good)
+                            items_good[i] = 1;
+                        else
+                            items_good[i] = 2;
+
+                        bool all_items_false = true;
+                        for(int k=0; k<items_good.Count(); k++)
+                        {
+                            if (items_good[k] == 0 || items_good[k] == 1)
+                                all_items_false = false;
+                        }
+
+                        if(all_items_false && _BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
+                        {
+                            _BasicTasks.Click("//a[@class='paging_button paging_left_step']");
+                            continue;
                         }
 
                         if(good)
@@ -2209,7 +2245,6 @@ namespace Gladiatus_35
                             }
                         }
                     }
-                    _BasicTasks.Click("//a[@class='paging_button paging_right_step']");
                 }
             }
         }
@@ -2619,6 +2654,99 @@ namespace Gladiatus_35
             currentHealth = currentHealth.Substring(0, currentHealth.Length - 1);
             int currentHealthInt = Convert.ToInt32(currentHealth);
             return currentHealthInt;
+        }
+        int Get_Maximum_Gold_Avalibe()
+        {
+            string file_path =
+            @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Items .txt files for Gladiatus_bot" + @"\items" + server_number + ".txt";
+            if (!File.Exists(file_path)) { return 0; }
+            int lineCount = File.ReadLines(file_path).Count();
+            if (lineCount == 0) { return 0; }
+            
+            string[] lines = File.ReadAllLines(file_path);
+            string[] class_items = new string[lines.Length];
+            string[] soulbound_items = new string[lines.Length];
+            string[] price_items = new string[lines.Length];
+            string[] level_items = new string[lines.Length];
+            string[] types = new string[lines.Length];
+            string[] quality = new string[lines.Length];
+            string[] amount = new string[lines.Length];
+            string[] already_sold = new string[lines.Length];
+
+            int iterator = 0;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string[] separated_line = lines[i].Split(' ');
+                class_items[iterator] = separated_line[0];
+                soulbound_items[iterator] = separated_line[1];
+                price_items[iterator] = separated_line[2];
+                types[iterator] = separated_line[3];
+                quality[iterator] = separated_line[4];
+                level_items[iterator] = separated_line[5];
+                amount[iterator] = separated_line[6];
+                already_sold[iterator] = separated_line[7];
+                iterator++;
+            }
+
+            int total_price = 0;
+            Guild_Market();
+            if (!_BasicTasks.Search("//input[@value='Kup']")) { return 0; }
+            int first_iterator = driver.FindElementsByXPath("//input[@value='Kup']").Count();
+            int second_iterator = driver.FindElementsByXPath("//input[@value='Anuluj']").Count();
+            iterator = first_iterator + second_iterator;
+
+            for (int j = 0; j < lines.Length; j++)
+            {
+                bool by_name = false;
+                bool by_amount = false;
+                bool by_soulbound = false;
+                bool by_level = false;
+                bool by_quality = false;
+                int price_item_work = Convert.ToInt32(price_items[j]);
+                string name_item_work = class_items[j];
+                string soulbound_work = soulbound_items[j];
+                string level_work = level_items[j];
+                string item_quality = quality[j];
+                string amount_work = amount[j];
+                if (amount_work != "null")
+                    by_amount = true;
+                if (name_item_work != "null")
+                    by_name = true;
+                if (soulbound_work != "null")
+                    by_soulbound = true;
+                if (level_work != "null")
+                    by_level = true;
+                if (item_quality != "null")
+                    by_quality = true;
+                for (int i = 2; i <= iterator + 1; i++)
+                {
+                    if (_BasicTasks.Search("//section[@id='market_table']//tr[position()='" + i + "']/td[@align='center']/input[@value='Kup']"))
+                    {
+                        IWebElement element = driver.FindElementByXPath("//section[@id='market_table']//tr[position()='" + i + "']/td[@style]/div[@style]");
+                        string soulbound = element.GetAttribute("data-soulbound-to");
+                        string name_item = element.GetAttribute("class");
+                        string price_item_string = driver.FindElementByXPath
+                            ("//section[@id='market_table']//tr[position()='" + i + "']/td[position()='3']").GetAttribute("textContent");
+                        string level = element.GetAttribute("data-level");
+                        string quality_level = element.GetAttribute("data-quality");
+                        string amount_loop = element.GetAttribute("data-amount");
+
+                        int price_item = Convert.ToInt32(new String(price_item_string.Where(Char.IsDigit).ToArray()));
+
+                        if (price_item_work == price_item)
+                        {
+                            if (by_name && name_item != name_item_work ||
+                                by_soulbound && soulbound != soulbound_work ||
+                                 by_level && level != level_work || by_quality && quality_level != item_quality || by_amount && amount_loop != amount_work)
+                                continue;
+
+                            total_price = total_price + price_item_work;
+                            break;
+                        }
+                    }
+                }
+            }
+            return total_price;
         }
         #endregion
     }
