@@ -66,8 +66,10 @@ namespace Gladiatus_35
         public void ReleaseElement(string xpath1)
         {
             Thread.Sleep(500);
+            IWebElement element = GetElement(xpath1);
             Actions move = new Actions(driver);
-            move.Release(GetElement(xpath1));
+            move.MoveToElement(element);
+            move.Release(element);
             move.Build().Perform();
         }
         public void MoveTo(string xpath1)
@@ -149,7 +151,7 @@ namespace Gladiatus_35
             Process killing = new Process();
             killing.StartInfo.CreateNoWindow = true;
             killing.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            killing.StartInfo.WorkingDirectory = @"C:\Users\danie\Pulpit\Other";
+            killing.StartInfo.WorkingDirectory = @"C:\Users\danie\Desktop\Other";
             killing.StartInfo.FileName = "killChromes.lnk";
 
             foreach (Process proces in Process.GetProcesses())

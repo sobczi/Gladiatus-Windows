@@ -48,6 +48,7 @@ namespace Gladiatus_35
             checkBox9.Checked = Properties.Settings.Default.purple_extracting;
             checkBox18.Checked = Properties.Settings.Default.orange_extracing;
             checkBox19.Checked = Properties.Settings.Default.red_extracting;
+            checkBox20.Checked = Properties.Settings.Default.hades;
 
             comboBox1.SelectedIndex = Properties.Settings.Default.expeditionOption;
             comboBox2.SelectedIndex = Properties.Settings.Default.dungeonsOption;
@@ -57,6 +58,8 @@ namespace Gladiatus_35
             comboBox6.SelectedIndex = Properties.Settings.Default.extractBackpack;
 
             textBox3.Text = Convert.ToString(Properties.Settings.Default.healthLevel);
+            textBox4.Enabled = Properties.Settings.Default.hades;
+            textBox4.Text = Convert.ToString(Properties.Settings.Default.maximum_rubles_hades);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -83,6 +86,7 @@ namespace Gladiatus_35
             Properties.Settings.Default.minimum_gold_pack = textBox2.Text;
             Properties.Settings.Default.healthLevel = Convert.ToInt32(textBox3.Text);
             Properties.Settings.Default.heal_me = checkBox3.Checked;
+            Properties.Settings.Default.hades = checkBox20.Checked;
 
             if (Properties.Settings.Default.get_for_extract)
             {
@@ -96,6 +100,7 @@ namespace Gladiatus_35
 
             Properties.Settings.Default.gold_limit = checkBox1.Checked;
             Properties.Settings.Default.gold_level = textBox1.Text;
+            Properties.Settings.Default.maximum_rubles_hades = Convert.ToInt32(textBox4.Text);
 
             Properties.Settings.Default.Save();
 
@@ -199,6 +204,20 @@ namespace Gladiatus_35
                 checkBox18.Enabled =false;
                 checkBox19.Enabled =false;
             }
+        }
+
+        private void checkBox20_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox20.Checked)
+                textBox4.Enabled = true;
+            else
+                textBox4.Enabled = false;
+        }
+
+        private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            { e.Handled = true; }
         }
     }
 }

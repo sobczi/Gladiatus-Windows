@@ -19,6 +19,7 @@ namespace Gladiatus_35
         public static bool update_data;
         public static bool startChrome;
         public static bool watch_auctions;
+        public static bool previous_headless;
 
         public static bool killEverything = true;
         public static bool botAction = true;
@@ -111,6 +112,7 @@ namespace Gladiatus_35
             }
             Thread life_tray = new Thread(Life_Tray_Info);
             life_tray.Start();
+            previous_headless = Properties.Settings.Default.headless;
         }
         void Form1_Resize(object sender, EventArgs e) { Hide_To_Tray(); }
         public void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -165,6 +167,17 @@ namespace Gladiatus_35
             {
                 MessageBox.Show("WAIT UNTILL TASK ENDS..");
             }
+        }
+        private void button7_Click(object sender, EventArgs e)
+        {
+            if (!downloadPackages)
+            {
+                TurnOff();
+                downloadPackages = true;
+                Start_Botting();
+                button7.Text = "DOWNLOADING PACKAGES..";
+            }
+            else { MessageBox.Show("WAIT UNTILL TASK ENDS.."); }
         }
         private void button8_Click_1(object sender, EventArgs e)
         {
@@ -276,7 +289,7 @@ namespace Gladiatus_35
                                 _Tasks.Search_Pack();
 
                                 if (hades)
-                                    break;
+                                    _Tasks.Hades();
 
                                 expedition_points = _Tasks.ReturnInt("//span[@id='expeditionpoints_value_point']");
                                 dungeon_points = _Tasks.ReturnInt("//span[@id='dungeonpoints_value_point']");
@@ -284,7 +297,10 @@ namespace Gladiatus_35
                                 if (expedition_points == 0 && !Properties.Settings.Default.dungeonsChecked && british_land && !Properties.Settings.Default.farm_arenas ||
                                     expedition_points == 0 && british_land && !Properties.Settings.Default.farm_arenas ||
                                     dungeon_points == 0 && !Properties.Settings.Default.expeditionsChecked && british_land && !Properties.Settings.Default.farm_arenas)
-                                { if (!_Tasks.Take_Pater_Costume()) { break; } }
+                                { if (!_Tasks.Take_Pater_Costume() && !_Tasks.Hades()) { break; } }
+
+                                if (previous_headless != Properties.Settings.Default.headless)
+                                    throw new Exception("Restarting - new headless parameter.");
                             } while (dungeon_points > 0 || expedition_points > 0 || Properties.Settings.Default.farm_arenas);
 
                             if (!botAction) { break; }
@@ -363,8 +379,8 @@ namespace Gladiatus_35
             }
             catch (Exception _exception)
             {
-                notifyIcon1.BalloonTipText = "RESTARTING BOT (" + server_string + ")";
-                notifyIcon1.ShowBalloonTip(1000);
+                //notifyIcon1.BalloonTipText = "RESTARTING BOT (" + server_string + ")";
+                //notifyIcon1.ShowBalloonTip(1000);
                 _BasicTasks.Save_Exception(_exception, server_string);
                 Run();
             }
@@ -500,18 +516,6 @@ namespace Gladiatus_35
         void Start_Botting()
         {
             startChrome = true; button3.Text = "BOTTING..";
-        }
-
-        private void button7_Click(object sender, EventArgs e)
-        {
-            if (!downloadPackages)
-            {
-                TurnOff();
-                downloadPackages = true;
-                Start_Botting();
-                button7.Text = "DOWNLOADING PACKAGES..";
-            }
-            else { MessageBox.Show("WAIT UNTILL TASK ENDS.."); }
         }
     }
 }

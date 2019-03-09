@@ -898,5 +898,17 @@ namespace Gladiatus_35.Properties {
                 this["purple_extracting"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int maximum_rubles_hades {
+            get {
+                return ((int)(this["maximum_rubles_hades"]));
+            }
+            set {
+                this["maximum_rubles_hades"] = value;
+            }
+        }
     }
 }
