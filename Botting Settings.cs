@@ -104,7 +104,6 @@ namespace Gladiatus_35
 
             Properties.Settings.Default.Save();
 
-            Form1.update_data = true;
             this.Close();
         }
 

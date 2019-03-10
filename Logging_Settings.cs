@@ -20,7 +20,6 @@ namespace Gladiatus_35
             Properties.Settings.Default.headless = checkBox2.Checked;
             Properties.Settings.Default.main_bot = checkBox1.Checked;
             Properties.Settings.Default.Save();
-            Form1.update_data = true;
             this.Close();
         }
 

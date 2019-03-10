@@ -22,7 +22,6 @@ namespace Gladiatus_35
         {
             if(Form1.startChrome){ Form1.startChrome = false; button9.Text = "START CHROME: OFF"; }
             else{ Form1.startChrome = true; button9.Text = "START CHROME: ON"; }
-            Form1.update_data = true;
             this.Close();
         }
 

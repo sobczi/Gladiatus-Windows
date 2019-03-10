@@ -10,76 +10,73 @@ using System.Diagnostics;
 
 namespace Gladiatus_35
 {
-    class BasicTasks
+    static class BasicTasks
     {
-        private static ChromeDriver driver;
-        public BasicTasks(ChromeDriver _driver) { driver = _driver; }
-        public BasicTasks() { }
-        public bool Search(string path)
+        public static bool Search(string path)
         {
-            if (driver.FindElementsByXPath(path).Count == 0) { return false; }
+            if (Form1.driver.FindElementsByXPath(path).Count == 0) { return false; }
             else { return true; }
         }
-        public void Click(string path)
+        public static void Click(string path)
         {
             //Random rnd = new Random();
             //int number = rnd.Next(3, 3) * 1000;
             //Thread.Sleep(number);
             for (int i = 0; i < 2; i++)
             {
-                IWebElement element = driver.FindElementByXPath(path);
+                IWebElement element = Form1.driver.FindElementByXPath(path);
                 try { Thread.Sleep(300); element.Click(); return; }
                 catch { Refresh(); }
             }
             return;
         }
-        public void SelectElement(string xpath1, string text)
+        public static void SelectElement(string xpath1, string text)
         {
             var choose = GetElement(xpath1);
             var selectElement = new SelectElement(choose);
             selectElement.SelectByText(text);
         }
-        public void MoveReleaseElement(string xpath1, string xpath2)
+        public static void MoveReleaseElement(string xpath1, string xpath2)
         {
             Thread.Sleep(500);
-            Actions move = new Actions(driver);
+            Actions move = new Actions(Form1.driver);
             move.ClickAndHold(GetElement(xpath1));
             move.Release(GetElement(xpath2));
             move.Build().Perform();
         }
-        public void MoveMoveElement(string xpath1, string xpath2)
+        public static void MoveMoveElement(string xpath1, string xpath2)
         {
             Thread.Sleep(500);
-            Actions move = new Actions(driver);
+            Actions move = new Actions(Form1.driver);
             move.ClickAndHold(GetElement(xpath1));
             move.MoveToElement(GetElement(xpath2));
             move.Build().Perform();
         }
-        public void MoveMoveElement(IWebElement element, string xpath2)
+        public static void MoveMoveElement(IWebElement element, string xpath2)
         {
             Thread.Sleep(500);
-            Actions move = new Actions(driver);
+            Actions move = new Actions(Form1.driver);
             move.ClickAndHold(element);
             move.MoveToElement(GetElement(xpath2));
             move.Build().Perform();
         }
-        public void ReleaseElement(string xpath1)
+        public static void ReleaseElement(string xpath1)
         {
             Thread.Sleep(500);
             IWebElement element = GetElement(xpath1);
-            Actions move = new Actions(driver);
+            Actions move = new Actions(Form1.driver);
             move.MoveToElement(element);
             move.Release(element);
             move.Build().Perform();
         }
-        public void MoveTo(string xpath1)
+        public static void MoveTo(string xpath1)
         {
             Thread.Sleep(500);
-            Actions move = new Actions(driver);
+            Actions move = new Actions(Form1.driver);
             move.MoveToElement(GetElement(xpath1));
             move.Build().Perform();
         }
-        public void CheckEvenets()
+        public static void CheckEvenets()
         {
             string[] paths = new string[4];
             paths[0] = "//input[@id='linkLoginBonus']";
@@ -89,23 +86,23 @@ namespace Gladiatus_35
 
             for (int i = 0; i < paths.Length; i++)
             {
-                try { var button = driver.FindElementByXPath(paths[i]); button.Click(); }
+                try { var button = Form1.driver.FindElementByXPath(paths[i]); button.Click(); }
                 catch { }
             }
 
             if (Search("//div[@id='title_infobox']"))
             {
-                if (driver.FindElementByXPath("//div[@id='title_infobox']").GetAttribute("textContent") == "Prace konserwacyjne")
+                if (Form1.driver.FindElementByXPath("//div[@id='title_infobox']").GetAttribute("textContent") == "Prace konserwacyjne")
                 { Thread.Sleep(360000); }
             }
         }
-        public IWebElement GetElement(string path)
+        public static IWebElement GetElement(string path)
         {
             WaitForXPath(path);
-            IWebElement element = driver.FindElementByXPath(path);
+            IWebElement element = Form1.driver.FindElementByXPath(path);
             return element;
         }
-        public void WaitForXPath(string path)
+        public static void WaitForXPath(string path)
         {
             int iterator = 0;
             bool found = false;
@@ -116,38 +113,38 @@ namespace Gladiatus_35
                 else { found = true; }
             }
         }
-        public void Refresh()
+        public static void Refresh()
         {
             CheckEvenets();
-            driver.Navigate().Refresh();
+            Form1.driver.Navigate().Refresh();
             return;
         }
-        public void Save_Exception(Exception _exception, string _server)
+        public static void Save_Exception(Exception _exception, string _server)
         {
             var time_now = DateTime.Now;
             string time_now_string = time_now.ToString("dd.MM.yyyy HH:mm:ss");
             File.AppendAllText(@"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\catched_exceptions.txt",
                 Environment.NewLine + Environment.NewLine + "<---------------->" + time_now_string +"<---------------->" + _server + Environment.NewLine + Convert.ToString(_exception));
         }
-        public void Exit(bool _turn_off)
+        public static void Exit(bool _turn_off)
         {
-            if(driver != null)
-            { driver.Close(); driver.Quit(); }
+            if(Form1.driver != null)
+            { Form1.driver.Close(); Form1.driver.Quit(); }
             if (Properties.Settings.Default.sleepModeChecked && _turn_off && Properties.Settings.Default.main_bot)
             { KillChromes(); Application.SetSuspendState(PowerState.Suspend, true, false); }
             foreach (Form f in Application.OpenForms) { f.Close(); }
             Application.Exit();
         }
-        public void AlreadyRunning()
+        public static void AlreadyRunning()
         {
             Process current = Process.GetCurrentProcess();
             Process[] proceses = Process.GetProcessesByName(current.ProcessName);
             foreach (Process proces in proceses) { if (proces.Id != current.Id) { proces.Kill(); } }
         }
-        public void KillChromes()
+        public static void KillChromes()
         {
             bool found = false;
-            string name = "chromedriver";
+            string name = "chromeForm1.driver";
             Process killing = new Process();
             killing.StartInfo.CreateNoWindow = true;
             killing.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -158,6 +155,85 @@ namespace Gladiatus_35
             {
                 if (proces.ProcessName.Contains(name) && !found)
                 { found = true; killing.Start(); }
+            }
+        }
+        public static int ReturnInt(string ścieżka)
+        {
+            int value = 0;
+            for (int i = 0; i < 2; i++)
+            {
+                IWebElement element = BasicTasks.GetElement(ścieżka);
+                try { value = Convert.ToInt32(element.GetAttribute("textContent")); return value; }
+                catch { BasicTasks.Refresh(); }
+            }
+            return value;
+        }
+        public static string Return_String(string path)
+        {
+            bool non_stop = true;
+            while (non_stop)
+            {
+                try
+                {
+                    return BasicTasks.GetElement(path).GetAttribute("textContent");
+                }
+                catch { }
+            }
+            return BasicTasks.GetElement(path).GetAttribute("textContent");
+        }
+        public static void Wait_For_Exit()
+        {
+            if (Form1.turn_off && Properties.Settings.Default.main_bot)
+            {
+                Form1.currently_running = "Waiting for exit..";
+                string[] processes = new string[7];
+                processes[0] = "Gladiatus_1";
+                processes[1] = "Gladiatus_25";
+                processes[2] = "Gladiatus_34";
+                processes[3] = "Gladiatus_36";
+                processes[4] = "Gladiatus_37";
+                processes[5] = "Gladiatus_38";
+                processes[6] = "Gladiatus_39";
+
+                bool found_process = false;
+                do
+                {
+                    Thread.Sleep(60000);
+                    found_process = false;
+                    Process[] proceses = Process.GetProcesses();
+                    foreach (Process proces in proceses)
+                    {
+                        for (int i = 0; i < processes.Length; i++)
+                        {
+                            if (proces.ProcessName == processes[i] && proces.ProcessName != Process.GetCurrentProcess().ProcessName)
+                            {
+                                found_process = true;
+                                break;
+                            }
+                        }
+
+                        if (found_process)
+                        {
+                            break;
+                        }
+                    }
+                } while (found_process && Form1.turn_off);
+            }
+            BasicTasks.Exit(Form1.turn_off);
+        }
+        public static void Catch_Mouse()
+        {
+            bool non_stop = true;
+            while (non_stop)
+            {
+                int first_variable = Cursor.Position.X;
+                Thread.Sleep(100);
+                int second_variable = Cursor.Position.X;
+                if (first_variable != second_variable)
+                {
+                    Form1.turn_off_notification = true;
+                    return;
+                }
             }
         }
     }

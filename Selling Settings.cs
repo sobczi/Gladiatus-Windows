@@ -74,9 +74,8 @@ namespace Gladiatus_35
             Properties.Settings.Default.red_selling = checkBox3.Checked;
 
             Properties.Settings.Default.Save();
-            Form1.update_data = true;
             this.Close();
-            }
+        }
 
         private void Form2_Load(object sender, EventArgs e)
         {
