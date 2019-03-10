@@ -236,5 +236,27 @@ namespace Gladiatus_35
                 }
             }
         }
+        public static bool Check_sold(IWebElement element)
+        {
+            Actions move = new Actions(Form1.driver);
+            move.MoveToElement(element);
+            move.Build().Perform();
+            if(BasicTasks.Search("//p[contains(text(),'Wskazówka')]"))
+                return true;
+            else
+                return false;
+        }
+
+        public static bool Check_sold(string xpath)
+        {
+            IWebElement element = GetElement(xpath);
+            Actions move = new Actions(Form1.driver);
+            move.MoveToElement(element);
+            move.Build().Perform();
+            if (BasicTasks.Search("//p[contains(text(),'Wskazówka')]"))
+                return true;
+            else
+                return false;
+        }
     }
 }

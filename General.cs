@@ -852,7 +852,7 @@ namespace Gladiatus_35
                         category = "null";
                     string ready_line =
                         "class_name='" + class_name + "' soulbound='" + soulbound + "' price='" + price_item + "' category='" + 
-                        category + "' quality='" + quality_level + "' level='" + level + "' amount='" + amount + "' sold='" + already_sold;
+                        category + "' quality='" + quality_level + "' level='" + level + "' amount='" + amount + "' sold='" + already_sold + "'";
                     File.AppendAllText(file_path, ready_line + Environment.NewLine);
                 }
                 first = false;
