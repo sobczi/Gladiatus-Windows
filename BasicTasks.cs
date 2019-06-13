@@ -38,7 +38,7 @@ namespace Gladiatus_35
         }
         public static void MoveReleaseElement(string xpath1, string xpath2)
         {
-            Thread.Sleep(500);
+            Thread.Sleep(250);
             Actions move = new Actions(Form1.driver);
             move.ClickAndHold(GetElement(xpath1));
             move.Release(GetElement(xpath2));
@@ -46,7 +46,7 @@ namespace Gladiatus_35
         }
         public static void MoveMoveElement(string xpath1, string xpath2)
         {
-            Thread.Sleep(500);
+            Thread.Sleep(250);
             Actions move = new Actions(Form1.driver);
             move.ClickAndHold(GetElement(xpath1));
             move.MoveToElement(GetElement(xpath2));
@@ -54,7 +54,7 @@ namespace Gladiatus_35
         }
         public static void MoveMoveElement(IWebElement element, string xpath2)
         {
-            Thread.Sleep(500);
+            //Thread.Sleep(500);
             Actions move = new Actions(Form1.driver);
             move.ClickAndHold(element);
             move.MoveToElement(GetElement(xpath2));
@@ -62,7 +62,7 @@ namespace Gladiatus_35
         }
         public static void ReleaseElement(string xpath1)
         {
-            Thread.Sleep(500);
+            Thread.Sleep(250);
             IWebElement element = GetElement(xpath1);
             Actions move = new Actions(Form1.driver);
             move.MoveToElement(element);
@@ -71,7 +71,7 @@ namespace Gladiatus_35
         }
         public static void MoveTo(string xpath1)
         {
-            Thread.Sleep(500);
+            Thread.Sleep(250);
             Actions move = new Actions(Form1.driver);
             move.MoveToElement(GetElement(xpath1));
             move.Build().Perform();

@@ -3,6 +3,7 @@ using System.Threading;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Gladiatus_35
 {
@@ -16,6 +17,7 @@ namespace Gladiatus_35
                 Thread.Sleep(5000);
                 while (!Form1.startChrome) { Thread.Sleep(500); }
                 var driverOptions = new ChromeOptions();
+                driverOptions.AddExtension(@"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\GladiatusTools.crx");
                 if (Properties.Settings.Default.headless)
                 {
                     driverOptions.AddArgument("--headless");
@@ -61,10 +63,6 @@ namespace Gladiatus_35
                                 Farming.Turma35();
                                 General.Training();
                                 Gold.Pack_Gold();
-                                Gold.Search_Pack();
-
-                                if (Properties.Settings.Default.hades)
-                                    Hades.DoHades();
 
                                 expedition_points = BasicTasks.ReturnInt("//span[@id='expeditionpoints_value_point']");
                                 dungeon_points = BasicTasks.ReturnInt("//span[@id='dungeonpoints_value_point']");
@@ -72,12 +70,14 @@ namespace Gladiatus_35
                                 if (expedition_points == 0 && !Properties.Settings.Default.dungeonsChecked && Form1.british_land && !Properties.Settings.Default.farm_arenas ||
                                     expedition_points == 0 && Form1.british_land && !Properties.Settings.Default.farm_arenas ||
                                     dungeon_points == 0 && !Properties.Settings.Default.expeditionsChecked && Form1.british_land && !Properties.Settings.Default.farm_arenas)
-                                { if (!Hades.Take_Pater_Costume() && !Hades.DoHades()) { break; } }
+                                { if (!Hades.Take_Pater_Costume() /*&& !Hades.DoHades()*/) { break; } }
 
                             } while (dungeon_points > 0 || expedition_points > 0 || Properties.Settings.Default.farm_arenas);
 
                             if (!Form1.botAction)
                                 break;
+
+                            Gold.Search_Pack();
                             General.Get_Items_For_Extract();
                             General.ExtractItems();
                             General.SellItems(false);

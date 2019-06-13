@@ -189,7 +189,7 @@ namespace Gladiatus_35
         }
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            BasicTasks.Exit(turn_off);
+            BasicTasks.Exit(false);
         }
         private void SetNotifyIconText(NotifyIcon ni, string text)
         {

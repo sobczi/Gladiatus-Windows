@@ -16,13 +16,15 @@ namespace Gladiatus_35
             if (Properties.Settings.Default.buyFood || need_food)
             {
                 Navigation.Packages();
-                if (BasicTasks.Search("//section[@style='display: none;']")) { BasicTasks.Click("//h2[@class='section-header'][contains(text(), 'Opcje')]"); }
+                if (BasicTasks.Search("//section[@style='display: none;']"))
+                    BasicTasks.Click("//h2[@class='section-header'][contains(text(), 'Opcje')]");
                 BasicTasks.SelectElement("//select[@name='f']", "Jadalne");
                 BasicTasks.Click("//input[@value='Filtr']");
 
                 for (int i = Properties.Settings.Default.foodPack; i < Properties.Settings.Default.foodPack * 10; i++)
                 {
-                    if (Form1.driver.FindElementsByXPath("//div[@class='paging_numbers']//a[text() = '" + i + "']").Count != 0) { return; }
+                    if (Form1.driver.FindElementsByXPath("//div[@class='paging_numbers']//a[text() = '" + i + "']").Count != 0)
+                        return;
                 }
                 string[] auctionForms;
                 Navigation.AuctionHouse();
@@ -32,9 +34,7 @@ namespace Gladiatus_35
                 IReadOnlyCollection<IWebElement> list = Form1.driver.FindElementsByXPath("//div[@id='auction_table']//form[@method='post']");
                 auctionForms = new string[list.Count];
                 for (int i = 0; i < list.Count; i++)
-                {
                     auctionForms[i] = Convert.ToString(list.ElementAt(i).GetAttribute("id"));
-                }
 
                 for (int i = 0; i < list.Count; i++)
                 {
@@ -42,8 +42,10 @@ namespace Gladiatus_35
                     string noOffers = Form1.driver.FindElementByXPath(helperString + "//div[@class='auction_bid_div']/div").GetAttribute("textContent");
                     noOffers = noOffers.Trim();
 
-                    if (noOffers == "Brak ofert") { BasicTasks.Click(helperString + "//input[@value='Licytuj']"); }
-                    if (Form1.driver.FindElementsByXPath("//div[@class='message fail']").Count != 0) { return; }
+                    if (noOffers == "Brak ofert")
+                        BasicTasks.Click(helperString + "//input[@value='Licytuj']");
+                    if (Form1.driver.FindElementsByXPath("//div[@class='message fail']").Count != 0)
+                        return;
                     list = Form1.driver.FindElementsByXPath("//input[@value='Licytuj']");
                 }
             }
@@ -135,8 +137,18 @@ namespace Gladiatus_35
                     for (int i = 0; i < 3; i++)
                     {
                         changed = false;
-                        if (i_strength[i] >= boosters_per_type) { i_strength[i] = 0; changed = true; }
-                        if (!changed) { i_strength[i] -= boosters_per_type; i_strength[i] *= -1; need_boosters = true; }
+                        if (i_strength[i] >= boosters_per_type) 
+                        {
+                            i_strength[i] = 0; 
+                            changed = true; 
+                        }
+
+                        if (!changed) 
+                        { 
+                            i_strength[i] -= boosters_per_type; 
+                            i_strength[i] *= -1; 
+                            need_boosters = true; 
+                        }
 
                         changed = false;
                         if (i_mastery[i] >= boosters_per_type) { i_mastery[i] = 0; changed = true; }
@@ -302,6 +314,7 @@ namespace Gladiatus_35
                 bool first = true;
                 string file_path = @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Selling items\selling_items" + Helpers.Switch_World() + ".txt";
                 int maximum_gold_level = Gold.Get_Maximum_Gold_Avalibe();
+
                 start:
 
                 bool gotAtLeastOne = false;
@@ -734,29 +747,67 @@ namespace Gladiatus_35
         public static void ExtractItems()
         {
             Form1.currently_running = "Extracting items..";
-            if (!Properties.Settings.Default.extractItems) { return; }
+            if (!Properties.Settings.Default.extractItems)
+                return;
+            Get_Items_For_Extract();
             Navigation.Arena();
             BasicTasks.Click("//a[@class='menuitem '][text() = 'Roztapiarka']");
-
-            Navigation.ExtractBackpack();
-            for (int i = 0; i < 2; i++)
+            if (!Navigation.ExtractBackpack())
+                return;
+            string inv_draggable = "//div[@id='inv']//div[contains(@class,'ui-draggable')]";
+            if (Form1.driver.FindElementsByXPath(inv_draggable).Count == 0)
+                return;
+            for(int i=0; i<6; i++)
             {
-                if (BasicTasks.Search("//div[contains(@class,'forge_closed " + i + "')]") && BasicTasks.Search("//div[@id='inv']//div[contains(@class,'ui-draggable')]"))
+                string forge_closed = "//div[contains(@class,'forge_closed " + i + "')]";
+                string forge_finished = "//div[contains(@class,'forge_finished-succeeded " + i + "')]";
+                if (BasicTasks.Search(forge_closed))
+                    BasicTasks.Click(forge_closed);
+                else if (BasicTasks.Search(forge_finished))
                 {
-                    if (!Navigation.ExtractBackpack()) { return; }
-                    BasicTasks.Click("//div[contains(@class,'forge_closed " + Convert.ToString(i) + "')]");
-                    BasicTasks.MoveReleaseElement("//div[@id='inv']//div[contains(@class,'ui-draggable')]", "//fieldset[@id='crafting_input']//div[@class='ui-droppable']");
+                    BasicTasks.Click(forge_finished);
+                    BasicTasks.Click("//div[contains(text(),'Wyślij jako pakiet')]");
+                }
+                else
+                    continue;
+                BasicTasks.WaitForXPath("//div[@class='forge_closed " + i + " tabActive']");
+                Navigation.ExtractBackpack();
+                if (!BasicTasks.Search("//div[@id='inv']//div[contains(@class,'ui-draggable')]"))
+                    break;
+                BasicTasks.MoveReleaseElement(inv_draggable, "//fieldset[@id='crafting_input']//div[@class='ui-droppable']");
+                if(BasicTasks.Search("//fieldset[@id='crafting_input']//div[@id='itembox']/div[contains(@class,'ui-draggable')]"))
+                {
+                    BasicTasks.WaitForXPath("//div[@class='icon_gold']");
                     BasicTasks.Click("//div[@class='icon_gold']");
                 }
-                else if (BasicTasks.Search("//div[contains(@class,'forge_finished-succeeded " + Convert.ToString(i) + "')]") && BasicTasks.Search("//div[@id='inv']//div[contains(@class,'ui-draggable')]"))
-                {
-                    if (!Navigation.ExtractBackpack()) { return; }
-                    BasicTasks.Click("//div[contains(@class,'forge_finished-succeeded " + Convert.ToString(i) + "')]");
-                    BasicTasks.Click("//div[@class='awesome-button'][text() = 'Wyślij jako pakiet']");
-                    BasicTasks.MoveReleaseElement("//div[@id='inv']//div[contains(@class,'ui-draggable')]", "//fieldset[@id='crafting_input']//div[@class='ui-droppable']");
-                    BasicTasks.Click("//div[@class='icon_gold']");
-                }
+                if (!BasicTasks.Search("//div[@class='error'][contains(text(),'Nie masz wystarczającej ilości złota')]"))
+                    BasicTasks.WaitForXPath("//div[@class='forge_crafting " + i + " tabActive']");
+                else
+                    break;
             }
+            //Navigation.ExtractBackpack();
+            //if (BasicTasks.Search("//div[@id='inv']//div[contains(@class,'ui-draggable')]"))
+            //    return;
+            //for (int i = 0; i < 6; i++)
+            //{
+            //    if (BasicTasks.Search("//div[contains(@class,'forge_closed " + i + "')]"))
+            //    {
+            //        if (!Navigation.ExtractBackpack())
+            //            return;
+            //        BasicTasks.Click("//div[contains(@class,'forge_closed " + Convert.ToString(i) + "')]");
+            //        BasicTasks.MoveReleaseElement("//div[@id='inv']//div[contains(@class,'ui-draggable')]", "//fieldset[@id='crafting_input']//div[@class='ui-droppable']");
+            //        BasicTasks.Click("//div[@class='icon_gold']");
+            //    }
+            //    else if (BasicTasks.Search("//div[contains(@class,'forge_finished-succeeded " + Convert.ToString(i) + "')]"))
+            //    {
+            //        if (!Navigation.ExtractBackpack())
+            //            return;
+            //        BasicTasks.Click("//div[contains(@class,'forge_finished-succeeded " + Convert.ToString(i) + "')]");
+            //        BasicTasks.Click("//div[@class='awesome-button'][text() = 'Wyślij jako pakiet']");
+            //        BasicTasks.MoveReleaseElement("//div[@id='inv']//div[contains(@class,'ui-draggable')]", "//fieldset[@id='crafting_input']//div[@class='ui-droppable']");
+            //        BasicTasks.Click("//div[@class='icon_gold']");
+            //    }
+            //}
         }
         public static void Training()
         {
@@ -860,6 +911,11 @@ namespace Gladiatus_35
         }
         public static void Get_Items_For_Extract()
         {
+            Get_Items_For_Extract_Colours();
+            Get_Items_For_Extract_Custom();
+        }
+        public static void Get_Items_For_Extract_Colours()
+        {
             if (Properties.Settings.Default.get_for_extract)
             {
                 string colour = "";
@@ -876,16 +932,18 @@ namespace Gladiatus_35
                 BasicTasks.SelectElement("//select[@name='fq']", colour);
                 BasicTasks.Click("//input[@value='Filtr']");
 
-                while (BasicTasks.Search("//a[@class='paging_button paging_right_step']"))
-                    BasicTasks.Click("//a[@class='paging_button paging_right_step']");
+                if (BasicTasks.Search("//a[@class='paging_button paging_right_full']"))
+                    BasicTasks.Click("//a[@class='paging_button paging_right_full']");
 
                 string[] invalid_types = new string[4];
                 invalid_types[0] = "64";
                 invalid_types[1] = "4096";
                 invalid_types[2] = "8192";
                 invalid_types[3] = "32768";
-                while (BasicTasks.Search("//div[@id='packages']//div[contains(@class,'ui-draggable')]"))
+                bool loop = true;
+                while(loop)
                 {
+                    loop = false;
                     Navigation.ExtractBackpack();
                     IList<IWebElement> all_items = Form1.driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
                     IList<IWebElement> good_items = new List<IWebElement>();
@@ -905,7 +963,7 @@ namespace Gladiatus_35
                             good_items.Add(all_items.ElementAt(i));
                     }
 
-                    if (good_items.Count == 0)
+                    if (good_items.Count == 0 && !BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
                         return;
 
                     for (int i = good_items.Count - 1; i >= 0; i--)
@@ -926,6 +984,61 @@ namespace Gladiatus_35
                                 return;
                         }
                     }
+
+                    if(BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
+                    {
+                        BasicTasks.Click("//a[@class='paging_button paging_left_step']");
+                        loop = true;
+                    }
+                }
+            }
+        }
+        public static void Get_Items_For_Extract_Custom()
+        {
+            string file_path = @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\custom_names_extract.txt";
+            string[] lines = null;
+            if (File.Exists(file_path))
+                lines = File.ReadAllLines(file_path);
+            else
+                return;
+            Navigation.Packages();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                IWebElement passwordElement = BasicTasks.GetElement("//input[@name='qry']");
+                passwordElement.SendKeys(lines[i]);
+                BasicTasks.Click("//input[@value='Filtr']");
+                Navigation.ExtractBackpack();
+                string path = "//div[@id='packages']//div[contains(@class,'ui-draggable')]";
+                string[] invalid_types = new string[4];
+                invalid_types[0] = "64";
+                invalid_types[1] = "4096";
+                invalid_types[2] = "8192";
+                invalid_types[3] = "32768";
+
+                while (true)
+                {
+                    IReadOnlyCollection<IWebElement> elements = Form1.driver.FindElementsByXPath(path);
+                    int x = -1;
+                    for(int j=0; j<elements.Count(); j++)
+                    {
+                        string t = elements.ElementAt(i).GetAttribute("data-content-type");
+                        x = j;
+                        for(int k=0; k<invalid_types.Length; k++)
+                        {
+                            if (t == invalid_types[k])
+                            {
+                                x = -1;
+                                break;
+                            }
+                        }
+                        if (x != -1)
+                            break;
+                    }
+                    if (x == -1)
+                        return;
+                    if (!Move_Item_For_Extract(elements.ElementAt(x)))
+                        return;
+                    Thread.Sleep(700);
                 }
             }
         }

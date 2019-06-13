@@ -345,51 +345,65 @@ namespace Gladiatus_35
                     else
                         items = Form1.driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
 
-                    foreach (IWebElement item in items)
+                    bool packages = true;
+                    while (packages)
                     {
-                        string name = item.GetAttribute("class");
-                        string level = item.GetAttribute("data-level");
-                        string soulbound = item.GetAttribute("data-soulbound-to");
-                        string quality = item.GetAttribute("data-quality");
-                        string amount = item.GetAttribute("data-amount");
+                        packages = false;
+                        if(first_time)
+                            items = Form1.driver.FindElementsByXPath("//div[@id='packages']//div[contains(@class,'ui-draggable')]");
 
-                        bool by_name = false;
-                        bool by_level = false;
-                        bool by_soulbound = false;
-                        bool by_quality = false;
-                        bool by_amount = false;
-                        bool by_sold = false;
-                        string result = @"\s*\b" + names[i] + @"\s*\b";
-                        if (Regex.Match(name,result).Success)
-                            by_name = true;
-                        if (levels[i] == level || levels[i] == "null")
-                            by_level = true;
-                        if (soulbounds[i] == soulbound || soulbounds[i] == "null")
-                            by_soulbound = true;
-                        if (qualities[i] == quality || qualities[i] == "null")
-                            by_quality = true;
-                        if (amounts[i] == amount || amounts[i] == "null")
-                            by_amount = true;
-
-                        bool sold = false;
-                        if (solds[i] == "1")
-                            sold = true;
-                        if (sold == BasicTasks.Check_sold(item))
-                            by_sold = true;
-
-                        if (by_name && by_level && by_soulbound && by_quality && by_quality && by_amount && by_sold)
+                        foreach (IWebElement item in items)
                         {
-                            path1 = Prepare_XPath(true, names[i], soulbounds[i], levels[i], qualities[i], amounts[i]);
-                            path2 = Prepare_XPath(false, names[i], soulbounds[i], levels[i], qualities[i], amounts[i]);
-                            found = true;
-                            found_sold = solds[i];
-                            found_price = prices[i];
-                            if (!both_locations)
-                                found_packages = true;
-                            break;
+                            string name = item.GetAttribute("class");
+                            string level = item.GetAttribute("data-level");
+                            string soulbound = item.GetAttribute("data-soulbound-to");
+                            string quality = item.GetAttribute("data-quality");
+                            string amount = item.GetAttribute("data-amount");
+
+                            bool by_name = false;
+                            bool by_level = false;
+                            bool by_soulbound = false;
+                            bool by_quality = false;
+                            bool by_amount = false;
+                            string result = @"\s*\b" + names[i] + @"\s*\b";
+                            if (Regex.Match(name, result).Success)
+                                by_name = true;
+                            if (levels[i] == level || levels[i] == "null")
+                                by_level = true;
+                            if (soulbounds[i] == soulbound || soulbounds[i] == "null")
+                                by_soulbound = true;
+                            if (qualities[i] == quality || qualities[i] == "null")
+                                by_quality = true;
+                            if (amounts[i] == amount || amounts[i] == "null")
+                                by_amount = true;
+
+                            bool sold = false;
+                            if (solds[i] == "1")
+                                sold = true;
+
+                            if (by_name && by_level && by_soulbound && by_quality && by_quality && by_amount)
+                            {
+                                if (sold != BasicTasks.Check_sold(item))
+                                    continue;
+                                path1 = Prepare_XPath(true, names[i], soulbounds[i], levels[i], qualities[i], amounts[i]);
+                                path2 = Prepare_XPath(false, names[i], soulbounds[i], levels[i], qualities[i], amounts[i]);
+                                found = true;
+                                found_sold = solds[i];
+                                found_price = prices[i];
+                                if (!both_locations)
+                                    found_packages = true;
+                                break;
+                            }
                         }
+
+                        if(first_time && BasicTasks.Search("//a[@class = 'paging_button paging_right_step']"))
+                        {
+                            BasicTasks.Click("//a[@class = 'paging_button paging_right_step']");
+                            packages = true;
+                            continue;
+                        }
+                        first_time = false;
                     }
-                    first_time = false;
                 }
 
                 if (found_packages)
@@ -420,42 +434,43 @@ namespace Gladiatus_35
                 return 100000000;
 
             string file_path =
-            @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Items .txt files for Gladiatus_bot" + @"\items" + Helpers.Switch_World() + ".txt";
+            @"C:\Users\danie\Documents\Visual Studio 2017\Resources\Gladiatus_bots\Items .txt files for Gladiatus_bot" + @"\items(" + Helpers.Switch_World() + ").txt";
             if (!File.Exists(file_path)) { return 0; }
             int lineCount = File.ReadLines(file_path).Count();
             if (lineCount == 0) { return 0; }
 
             string[] lines = File.ReadAllLines(file_path);
-            string[] class_items = new string[lines.Length];
-            string[] soulbound_items = new string[lines.Length];
-            string[] price_items = new string[lines.Length];
-            string[] level_items = new string[lines.Length];
-            string[] types = new string[lines.Length];
-            string[] quality = new string[lines.Length];
-            string[] amount = new string[lines.Length];
-            string[] already_sold = new string[lines.Length];
+            string[] names = new string[lines.Length];
+            string[] soulbounds = new string[lines.Length];
+            string[] prices = new string[lines.Length];
+            string[] levels = new string[lines.Length];
+            string[] categories = new string[lines.Length];
+            string[] qualities = new string[lines.Length];
+            string[] amounts = new string[lines.Length];
+            string[] solds = new string[lines.Length];
 
             int iterator = 0;
+            string regex = "\'(.*?)\'";
             for (int i = 0; i < lines.Length; i++)
             {
                 string[] separated_line = lines[i].Split(' ');
-                class_items[iterator] = separated_line[0];
-                soulbound_items[iterator] = separated_line[1];
-                price_items[iterator] = separated_line[2];
-                types[iterator] = separated_line[3];
-                quality[iterator] = separated_line[4];
-                level_items[iterator] = separated_line[5];
-                amount[iterator] = separated_line[6];
-                already_sold[iterator] = separated_line[7];
+                names[iterator] = Regex.Match(separated_line[0], regex).Value;
+                soulbounds[iterator] = Regex.Match(separated_line[1], regex).Value;
+                prices[iterator] = Regex.Match(separated_line[2], regex).Value;
+                categories[iterator] = Regex.Match(separated_line[3], regex).Value;
+                qualities[iterator] = Regex.Match(separated_line[4], regex).Value;
+                levels[iterator] = Regex.Match(separated_line[5], regex).Value;
+                amounts[iterator] = Regex.Match(separated_line[6], regex).Value;
+                solds[iterator] = Regex.Match(separated_line[7], regex).Value;
 
-                class_items[iterator] = class_items[iterator].Replace("'", "");
-                soulbound_items[iterator] = soulbound_items[iterator].Replace("'", "");
-                price_items[iterator] = price_items[iterator].Replace("'", "");
-                types[iterator] = types[iterator].Replace("'", "");
-                quality[iterator] = quality[iterator].Replace("'", "");
-                level_items[iterator] = level_items[iterator].Replace("'", "");
-                amount[iterator] = amount[iterator].Replace("'", "");
-                already_sold[iterator] = already_sold[iterator].Replace("'", "");
+                names[iterator] = names[iterator].Replace("'", "");
+                soulbounds[iterator] = soulbounds[iterator].Replace("'", "");
+                prices[iterator] = prices[iterator].Replace("'", "");
+                categories[iterator] = categories[iterator].Replace("'", "");
+                qualities[iterator] = qualities[iterator].Replace("'", "");
+                levels[iterator] = levels[iterator].Replace("'", "");
+                amounts[iterator] = amounts[iterator].Replace("'", "");
+                solds[iterator] = solds[iterator].Replace("'", "");
                 iterator++;
             }
 
@@ -473,12 +488,12 @@ namespace Gladiatus_35
                 bool by_soulbound = false;
                 bool by_level = false;
                 bool by_quality = false;
-                int price_item_work = Convert.ToInt32(price_items[j]);
-                string name_item_work = class_items[j];
-                string soulbound_work = soulbound_items[j];
-                string level_work = level_items[j];
-                string item_quality = quality[j];
-                string amount_work = amount[j];
+                int price_item_work = Convert.ToInt32(prices[j]);
+                string name_item_work = names[j];
+                string soulbound_work = soulbounds[j];
+                string level_work = levels[j];
+                string item_quality = qualities[j];
+                string amount_work = amounts[j];
                 if (amount_work != "null")
                     by_amount = true;
                 if (name_item_work != "null")

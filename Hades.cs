@@ -16,16 +16,26 @@ namespace Gladiatus_35
             bool first_attack = true;
             string[] items = new string[4];
             BasicTasks.Click("//div[@id='cooldown_bar_expedition']/a[@class='cooldown_bar_link']");
-            if (BasicTasks.Search("//a[contains(text(),'Pustelnik')]"))
+            bool first = false;
+            bool second = false;
+            if (BasicTasks.Search("//a[contains(@title,'Czas podróży')]"))
+                first = true;
+            else if (BasicTasks.Search("//a[text() = 'Pustelnik']"))
+                second = true;
+
+            if (first || second)
             {
                 //enter hades
-                General.HealMe(100);
-                BasicTasks.Click("//div[@id='cooldown_bar_expedition']/a[@class='cooldown_bar_link']");
-                BasicTasks.Click("//a[contains(text(),'Pustelnik')]");
-                BasicTasks.Click("//a[contains(text(), 'zaświaty')]");
-                BasicTasks.Click("//input[@value='normalne']");
-                BasicTasks.WaitForXPath("//div[@id='cooldown_bar_expedition']/div[@class='cooldown_bar_text']");
+                if (!first)
+                {
+                    General.HealMe(100);
+                    BasicTasks.Click("//div[@id='cooldown_bar_expedition']/a[@class='cooldown_bar_link']");
+                    BasicTasks.Click("//a[contains(text(),'Pustelnik')]");
+                    BasicTasks.Click("//a[contains(text(), 'zaświaty')]");
+                    BasicTasks.Click("//input[@value='normalne']");
+                }
 
+                BasicTasks.WaitForXPath("//div[contains(text(),'Na wyprawę')]");
 
                 //first fight, take off gear
                 BasicTasks.Click("//a[@title='Podgląd']");
@@ -116,7 +126,6 @@ namespace Gladiatus_35
             }
             return false;
         }
-
         private static void Hades_Exit()
         {
             Navigation.Packages();
@@ -249,7 +258,7 @@ namespace Gladiatus_35
                     return i;
                 }
             }
-            return 0;
+            return -1;
         }
         private static string Hades_Get_Class(string container)
         {
@@ -277,7 +286,7 @@ namespace Gladiatus_35
         }
         private static void Hades_Heal_Guild()
         {
-            if (30 > General.Health_Level())
+            if (Properties.Settings.Default.healthLevel > General.Health_Level())
             {
                 Navigation.Guild_Medic();
                 if (BasicTasks.Search("//a[contains(text(),'Lecz teraz!')]"))
