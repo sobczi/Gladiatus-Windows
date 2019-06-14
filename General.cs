@@ -751,7 +751,7 @@ namespace Gladiatus_35
                 return;
             Get_Items_For_Extract();
             Navigation.Arena();
-            BasicTasks.Click("//a[@class='menuitem '][text() = 'Roztapiarka']");
+            Navigation.Extract();
             if (!Navigation.ExtractBackpack())
                 return;
             string inv_draggable = "//div[@id='inv']//div[contains(@class,'ui-draggable')]";
@@ -785,29 +785,6 @@ namespace Gladiatus_35
                 else
                     break;
             }
-            //Navigation.ExtractBackpack();
-            //if (BasicTasks.Search("//div[@id='inv']//div[contains(@class,'ui-draggable')]"))
-            //    return;
-            //for (int i = 0; i < 6; i++)
-            //{
-            //    if (BasicTasks.Search("//div[contains(@class,'forge_closed " + i + "')]"))
-            //    {
-            //        if (!Navigation.ExtractBackpack())
-            //            return;
-            //        BasicTasks.Click("//div[contains(@class,'forge_closed " + Convert.ToString(i) + "')]");
-            //        BasicTasks.MoveReleaseElement("//div[@id='inv']//div[contains(@class,'ui-draggable')]", "//fieldset[@id='crafting_input']//div[@class='ui-droppable']");
-            //        BasicTasks.Click("//div[@class='icon_gold']");
-            //    }
-            //    else if (BasicTasks.Search("//div[contains(@class,'forge_finished-succeeded " + Convert.ToString(i) + "')]"))
-            //    {
-            //        if (!Navigation.ExtractBackpack())
-            //            return;
-            //        BasicTasks.Click("//div[contains(@class,'forge_finished-succeeded " + Convert.ToString(i) + "')]");
-            //        BasicTasks.Click("//div[@class='awesome-button'][text() = 'Wyślij jako pakiet']");
-            //        BasicTasks.MoveReleaseElement("//div[@id='inv']//div[contains(@class,'ui-draggable')]", "//fieldset[@id='crafting_input']//div[@class='ui-droppable']");
-            //        BasicTasks.Click("//div[@class='icon_gold']");
-            //    }
-            //}
         }
         public static void Training()
         {
@@ -911,28 +888,51 @@ namespace Gladiatus_35
         }
         public static void Get_Items_For_Extract()
         {
-            Get_Items_For_Extract_Colours();
+            Get_Items_For_Extract_Colours(false, -1);
             Get_Items_For_Extract_Custom();
+            //Get_Anything_Extract();
         }
-        public static void Get_Items_For_Extract_Colours()
+        public static void Get_Anything_Extract()
+        {
+            Navigation.Extract();
+            int counter = 0;
+            for (int i = 0; i < 6; i++)
+            {
+                string forge_closed = "//div[contains(@class,'forge_closed " + i + "')]";
+                string forge_finished = "//div[contains(@class,'forge_finished-succeeded " + i + "')]";
+                if (BasicTasks.Search(forge_closed) || BasicTasks.Search(forge_finished))
+                    counter++;
+            }
+            Navigation.ExtractBackpack();
+            counter = counter - Form1.driver.FindElementsByXPath("//div[@id='inv']//div[contains(@class,'item')]").Count;
+            if(counter > 0)
+                Get_Items_For_Extract_Colours(true, counter);
+        }
+        public static void Get_Items_For_Extract_Colours(bool anything, int counter)
         {
             if (Properties.Settings.Default.get_for_extract)
             {
+                int total = 0;
                 string colour = "";
-                if (Properties.Settings.Default.purple_extracting)
-                    colour = "Mars (purpurowy)";
-                else if (Properties.Settings.Default.orange_extracing)
-                    colour = "Jupiter (pomarańczowy)";
-                else if (Properties.Settings.Default.red_extracting)
-                    colour = "Olimp (czerwony)";
+                if (!anything)
+                {
+                    if (Properties.Settings.Default.purple_extracting)
+                        colour = "Mars (purpurowy)";
+                    else if (Properties.Settings.Default.orange_extracing)
+                        colour = "Jupiter (pomarańczowy)";
+                    else if (Properties.Settings.Default.red_extracting)
+                        colour = "Olimp (czerwony)";
+                    else
+                        return;
+                }
                 else
-                    return;
+                    colour = "Normalny";
 
                 Navigation.Packages();
                 BasicTasks.SelectElement("//select[@name='fq']", colour);
                 BasicTasks.Click("//input[@value='Filtr']");
 
-                if (BasicTasks.Search("//a[@class='paging_button paging_right_full']"))
+                if (BasicTasks.Search("//a[@class='paging_button paging_right_full']") && !anything)
                     BasicTasks.Click("//a[@class='paging_button paging_right_full']");
 
                 string[] invalid_types = new string[4];
@@ -963,11 +963,27 @@ namespace Gladiatus_35
                             good_items.Add(all_items.ElementAt(i));
                     }
 
-                    if (good_items.Count == 0 && !BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
+                    if (!anything && good_items.Count == 0 && !BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
+                        return;
+                    else if (anything && good_items.Count == 0 && !BasicTasks.Search("//a[@class='paging_button paging_right_step']"))
                         return;
 
                     for (int i = good_items.Count - 1; i >= 0; i--)
                     {
+                        if(counter != -1)
+                        {
+                            if (total < counter)
+                                total++;
+                            else
+                                return;
+                        }
+                        if (anything)
+                        {
+                            if (!Move_Item_For_Extract(good_items.ElementAt(i)))
+                                return;
+                            else
+                                continue;
+                        }
                         if (good_items.ElementAt(i).GetAttribute("data-quality") == "4" && Properties.Settings.Default.red_extracting)
                         {
                             if (!Move_Item_For_Extract(good_items.ElementAt(i)))
@@ -985,13 +1001,30 @@ namespace Gladiatus_35
                         }
                     }
 
-                    if(BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
+                    if (!anything && BasicTasks.Search("//a[@class='paging_button paging_left_step']"))
                     {
                         BasicTasks.Click("//a[@class='paging_button paging_left_step']");
                         loop = true;
                     }
+                    else if (anything && BasicTasks.Search("//a[@class='paging_button paging_right_step']"))
+                    {
+                        BasicTasks.Click("//a[@class='paging_button paging_right_step']");
+                        loop = true;
+                    }
                 }
             }
+        }
+        private static bool Extract_Check_Categories(string type)
+        {
+            string[] invalid_types = new string[4];
+            invalid_types[0] = "64";
+            invalid_types[1] = "4096";
+            invalid_types[2] = "8192";
+            invalid_types[3] = "32768";
+            for(int i=0; i<invalid_types.Length; i++)
+                if (type == invalid_types[i])
+                    return false;
+            return true;
         }
         public static void Get_Items_For_Extract_Custom()
         {
@@ -1005,40 +1038,20 @@ namespace Gladiatus_35
             for (int i = 0; i < lines.Length; i++)
             {
                 IWebElement passwordElement = BasicTasks.GetElement("//input[@name='qry']");
+                passwordElement.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                passwordElement.SendKeys(OpenQA.Selenium.Keys.Delete);
                 passwordElement.SendKeys(lines[i]);
                 BasicTasks.Click("//input[@value='Filtr']");
                 Navigation.ExtractBackpack();
                 string path = "//div[@id='packages']//div[contains(@class,'ui-draggable')]";
-                string[] invalid_types = new string[4];
-                invalid_types[0] = "64";
-                invalid_types[1] = "4096";
-                invalid_types[2] = "8192";
-                invalid_types[3] = "32768";
 
-                while (true)
+                IReadOnlyCollection<IWebElement> elements = Form1.driver.FindElementsByXPath(path);
+                for(int j=0; j<elements.Count(); j++)
                 {
-                    IReadOnlyCollection<IWebElement> elements = Form1.driver.FindElementsByXPath(path);
-                    int x = -1;
-                    for(int j=0; j<elements.Count(); j++)
-                    {
-                        string t = elements.ElementAt(i).GetAttribute("data-content-type");
-                        x = j;
-                        for(int k=0; k<invalid_types.Length; k++)
-                        {
-                            if (t == invalid_types[k])
-                            {
-                                x = -1;
-                                break;
-                            }
-                        }
-                        if (x != -1)
-                            break;
-                    }
-                    if (x == -1)
+                    if (Extract_Check_Categories(elements.ElementAt(i).GetAttribute("data-content-type")))
+                        continue;
+                    if (!Move_Item_For_Extract(elements.ElementAt(j)))
                         return;
-                    if (!Move_Item_For_Extract(elements.ElementAt(x)))
-                        return;
-                    Thread.Sleep(700);
                 }
             }
         }

@@ -78,7 +78,6 @@ namespace Gladiatus_35
                                 break;
 
                             Gold.Search_Pack();
-                            General.Get_Items_For_Extract();
                             General.ExtractItems();
                             General.SellItems(false);
                             Gold.Pack_Gold();

@@ -5,6 +5,10 @@ namespace Gladiatus_35
 {
     static class Navigation
     {
+        public static void Extract()
+        {
+            BasicTasks.Click("//a[@class='menuitem '][text() = 'Roztapiarka']");
+        }
         public static bool FreeBackpack()
         {
             if (!BasicTasks.Search(Helpers.Switch_Backpack_Free() + "[@data-available='false']"))
